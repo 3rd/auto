@@ -35,29 +35,24 @@ export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
 }
 
 const getDefaultParamValue = <T extends ParamType>(type: T): ParamValueType<T> => {
-  return (() => {
-    if (type === "boolean") return false;
-    if (type === "number") return 0;
-    if (type === "string") return "";
-  })() as ParamValueType<T>;
+  const defaultValues: Record<ParamType, ParamValueType<ParamType>> = {
+    boolean: false,
+    number: 0,
+    string: "",
+  };
+  return defaultValues[type] as ParamValueType<T>;
 };
 
 export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(template: Template<P>) => {
   return {
     ...template,
     bootstrapParams: () => {
-      const params: Record<string, any> = {};
-      for (const [key, param] of Object.entries<TemplateParam<ParamType>>(template.params)) {
-        params[key] = {
-          ...param,
-          value: param.defaultValue ?? getDefaultParamValue(param.type),
-        };
-      }
-      return params as {
-        [K in keyof P]: P[K] & {
-          value: ParamValueType<P[K]["type"]>;
-        };
-      };
+      return Object.fromEntries(
+        Object.entries<TemplateParam<ParamType>>(template.params).map(([key, param]) => [
+          key,
+          { ...param, value: param.defaultValue ?? getDefaultParamValue(param.type) },
+        ])
+      );
     },
   };
 };

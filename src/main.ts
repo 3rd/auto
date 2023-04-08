@@ -1,16 +1,13 @@
 /* eslint-disable no-await-in-loop */
 import { cli as cleye, command } from "cleye";
-import { prompt } from "enquirer";
+import enquirer from "enquirer";
 import fs from "fs-extra";
-import execa from "execa";
+import * as execa from "execa";
 import packageJson from "../package.json";
 import templates from "./templates";
 import Context from "./context/Context";
 
 const context = new Context();
-// console.log(context.project.rootDirectory);
-// console.log(context.project.isGoProject);
-// console.log(context.project.dependencies);
 
 const listCommand = command(
   {
@@ -21,10 +18,7 @@ const listCommand = command(
     },
   },
   (argv) => {
-    const filteredTemplates = templates.filter((template) =>
-      argv.flags.all ? true : template.isValidForContext(context)
-    );
-    for (const template of filteredTemplates) {
+    for (const template of templates.filter((t) => (argv.flags.all ? true : t.isValidForContext(context)))) {
       console.log(`[${template.id}] ${template.title}`);
     }
   }
@@ -52,8 +46,9 @@ const runCommand = command(
     }
     const params = template.bootstrapParams();
     for (const [_, param] of Object.entries(params)) {
-      if ((param.type as unknown) === "boolean") {
-        const { value } = await prompt<{ value: string }>({
+      const type = param.type as unknown;
+      if (type === "boolean") {
+        const { value } = await enquirer.prompt<{ value: string }>({
           type: "confirm",
           name: "value",
           message: param.title,
@@ -61,8 +56,8 @@ const runCommand = command(
         });
         param.value = value;
       }
-      if ((param.type as unknown) === "number") {
-        const { value } = await prompt<{ value: string }>({
+      if (type === "number") {
+        const { value } = await enquirer.prompt<{ value: string }>({
           type: "numeral",
           name: "value",
           message: param.title,
@@ -70,8 +65,8 @@ const runCommand = command(
         });
         param.value = value;
       }
-      if ((param.type as unknown) === "string") {
-        const { value } = await prompt<{ value: string }>({
+      if (type === "string") {
+        const { value } = await enquirer.prompt<{ value: string }>({
           type: "input",
           name: "value",
           message: param.title,
@@ -80,13 +75,13 @@ const runCommand = command(
         param.value = value;
       }
     }
-    const paramValues = Object.fromEntries(Object.entries(params).map(([key, param]) => [key, param.value])) as {
-      [K in keyof typeof params]: typeof params[K]["value"];
-    };
+
+    const paramValues = Object.fromEntries(Object.entries(params).map(([key, param]) => [key, param.value]));
+
     template.generate({
       context,
-      params: paramValues,
       template,
+      params: paramValues as Parameters<typeof template.generate>[0]["params"],
       lib: { fs, execa },
     });
   }
