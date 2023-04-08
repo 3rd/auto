@@ -1,15 +1,17 @@
 {
   "name": "auto",
   "version": "1.0.0",
-  "repository": "user/repo",
-  "description": "description",
-  "keywords": [],
+  "repository": "https://github.com/3rd/auto",
+  "description": "Auto-something-something.",
+  "keywords": [
+    "cli",
+    "automation"
+  ],
   "author": {
-    "name": "author",
-    "email": "author@domain.tld"
+    "name": "Andrei Neculaesei",
+    "email": "3rd@users.noreply.github.com"
   },
-  "license": "private",
-  "private": true,
+  "license": "GPLv2",
   "type": "module",
   "files": [
     "dist"
