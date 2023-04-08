@@ -18,9 +18,9 @@
   "exports": {
     "./package.json": "./package.json",
     "./globals": {
-      "require": "./dist/globals.cjs",
-      "import": "./dist/globals.mjs",
-      "types": "./dist/globals.d.ts"
+      "require": "./dist/globals/index.cjs",
+      "import": "./dist/globals/index.mjs",
+      "types": "./dist/globals/index.d.ts"
     }
   },
   "bin": {
