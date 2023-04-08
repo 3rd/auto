@@ -49,13 +49,12 @@ export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(t
       const params: Record<string, any> = {};
       for (const [key, param] of Object.entries<TemplateParam<ParamType>>(template.params)) {
         params[key] = {
-          meta: param,
+          ...param,
           value: param.defaultValue ?? getDefaultParamValue(param.type),
         };
       }
       return params as {
-        [K in keyof P]: {
-          meta: P[K];
+        [K in keyof P]: P[K] & {
           value: ParamValueType<P[K]["type"]>;
         };
       };

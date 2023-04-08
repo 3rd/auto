@@ -52,29 +52,29 @@ const runCommand = command(
     }
     const params = template.bootstrapParams();
     for (const [_, param] of Object.entries(params)) {
-      if ((param.meta.type as unknown) === "boolean") {
+      if ((param.type as unknown) === "boolean") {
         const { value } = await prompt<{ value: string }>({
           type: "confirm",
           name: "value",
-          message: param.meta.title,
+          message: param.title,
           initial: param.value,
         });
         param.value = value;
       }
-      if ((param.meta.type as unknown) === "number") {
+      if ((param.type as unknown) === "number") {
         const { value } = await prompt<{ value: string }>({
           type: "numeral",
           name: "value",
-          message: param.meta.title,
+          message: param.title,
           initial: param.value,
         });
         param.value = value;
       }
-      if ((param.meta.type as unknown) === "string") {
+      if ((param.type as unknown) === "string") {
         const { value } = await prompt<{ value: string }>({
           type: "input",
           name: "value",
-          message: param.meta.title,
+          message: param.title,
           initial: param.value,
         });
         param.value = value;
