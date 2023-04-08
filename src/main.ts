@@ -1,11 +1,12 @@
 /* eslint-disable no-await-in-loop */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inspect } from "node:util";
+import repl from "node:repl";
+
 import spawn from "cross-spawn";
 import { cli as cleye, command } from "cleye";
 import { globSync } from "glob";
-import fs from "fs-extra";
-import * as execa from "execa";
 import enquirer from "enquirer";
 
 import packageJson from "../package.json";
@@ -97,10 +98,19 @@ const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType
           }
           return result;
         },
-        lib: { fs, execa },
       });
     }
   );
+
+const createReplCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
+  command({ name: "repl" }, async () => {
+    (global as any).context = context;
+    (global as any).templates = templates;
+    repl.start({
+      prompt: "> ",
+      useGlobal: true,
+    });
+  });
 
 const main = async () => {
   // const templateRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
@@ -137,7 +147,11 @@ const main = async () => {
   const cli = cleye({
     name: packageJson.name,
     version: packageJson.version,
-    commands: [createListCommand(context, templates), createRunCommand(context, templates)],
+    commands: [
+      createListCommand(context, templates),
+      createRunCommand(context, templates),
+      createReplCommand(context, templates),
+    ],
   });
   if (!cli.command) cli.showHelp();
 };

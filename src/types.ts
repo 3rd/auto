@@ -1,10 +1,5 @@
 import Context from "./context/Context";
 
-type Library = {
-  fs: typeof import("fs-extra");
-  execa: typeof import("execa");
-};
-
 type ParamType = "boolean" | "number" | "string";
 
 type ParamValueType<T extends ParamType> = T extends "boolean"
@@ -31,7 +26,6 @@ export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
     self: Template<P>;
     params: { [K in keyof P]: ParamValueType<P[K]["type"]> };
     substitute: (source: string, params: Partial<{ [K in keyof P]: ParamValueType<P[K]["type"]> }>) => string;
-    lib: Library;
   }) => void;
 }
 
