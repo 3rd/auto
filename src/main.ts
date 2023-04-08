@@ -22,7 +22,10 @@ const createListCommand = (context: Context, templates: ReturnType<AsTemplateTyp
       },
     },
     (argv) => {
-      for (const template of templates.filter((t) => (argv.flags.all ? true : t.isValidForContext(context)))) {
+      const filteredTemplates = argv.flags.all
+        ? templates
+        : templates.filter((t) => !t.isValidForContext || t.isValidForContext(context));
+      for (const template of filteredTemplates) {
         console.log(`[${template.id}] ${template.title}`);
       }
     }
@@ -45,7 +48,7 @@ const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType
         console.error(`Template ${generatorId} not found`);
         process.exit(1);
       }
-      if (!template.isValidForContext(context)) {
+      if (template.isValidForContext && !template.isValidForContext(context)) {
         console.error(`Template ${generatorId} is not valid for this context`);
         process.exit(1);
       }

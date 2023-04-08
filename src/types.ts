@@ -23,9 +23,9 @@ interface TemplateParam<Type extends ParamType> {
 
 export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
   id: string;
-  title: string;
-  params: P;
-  isValidForContext: (context: Context) => boolean;
+  title?: string;
+  params?: P;
+  isValidForContext?: (context: Context) => boolean;
   generate: (args: {
     context: Context;
     self: Template<P>;
@@ -48,6 +48,7 @@ export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(t
   return {
     ...template,
     bootstrapParams: () => {
+      if (!template.params) return {};
       return Object.fromEntries(
         Object.entries<TemplateParam<ParamType>>(template.params).map(([key, param]) => [
           key,
