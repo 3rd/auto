@@ -1,4 +1,4 @@
-import { resolve } from "node:path/posix";
+import { resolve } from "node:path";
 import { findUpSync } from "find-up";
 import Project from "./Project";
 

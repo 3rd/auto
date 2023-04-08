@@ -1,16 +1,18 @@
 /* eslint-disable no-await-in-loop */
-import { resolve } from "path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import spawn from "cross-spawn";
 import { cli as cleye, command } from "cleye";
 import { globSync } from "glob";
 import fs from "fs-extra";
 import * as execa from "execa";
 import enquirer from "enquirer";
+
 import packageJson from "../package.json";
 import Context from "./context/Context";
-import { asTemplate } from "./types";
+import { AsTemplateType } from "./types";
 
-const createListCommand = (context: Context, templates: ReturnType<typeof asTemplate>[]) =>
+const createListCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
   command(
     {
       name: "list",
@@ -26,7 +28,7 @@ const createListCommand = (context: Context, templates: ReturnType<typeof asTemp
     }
   );
 
-const createRunCommand = (context: Context, templates: ReturnType<typeof asTemplate>[]) =>
+const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
   command(
     {
       name: "run",
@@ -98,12 +100,13 @@ const createRunCommand = (context: Context, templates: ReturnType<typeof asTempl
   );
 
 const main = async () => {
-  const templateRepositoryPath = "/home/rabbit/brain/config/home/templates";
+  // const templateRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
+  const templateRepositoryPath = "/home/rabbit/brain/core/test/templates";
   const tsconfigPath = resolve(templateRepositoryPath, "tsconfig.json");
 
   if (typeof process.send !== "function") {
     const argv = process.argv.slice(1);
-    const esmLoaderPath = require.resolve("@esbuild-kit/esm-loader");
+    const esmLoaderPath = require.resolve("tsx");
 
     const childProcess = spawn(process.execPath, ["--loader", esmLoaderPath, ...argv], {
       stdio: ["inherit", "inherit", "inherit", "ipc"],
@@ -122,7 +125,7 @@ const main = async () => {
 
   const context = new Context();
 
-  const templates: ReturnType<typeof asTemplate>[] = [];
+  const templates: ReturnType<AsTemplateType>[] = [];
   for (const file of globSync(`${templateRepositoryPath}/**/*.ts`)) {
     const template = await import(file);
     templates.push(template.default);

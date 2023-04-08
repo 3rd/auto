@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "noEmit": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
     "strict": true
   },
   "include": [
-    "src"
+    "src/**/*"
   ]
 }

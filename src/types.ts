@@ -57,3 +57,5 @@ export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(t
     },
   };
 };
+
+export type AsTemplateType = typeof asTemplate;
