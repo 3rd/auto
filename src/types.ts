@@ -10,10 +10,10 @@ type ParamValueType<T extends ParamType> = T extends "boolean"
   ? string
   : never;
 
-interface TemplateParam<Type extends ParamType> {
+interface TemplateParam<T extends ParamType> {
   title: string;
-  type: Type;
-  defaultValue?: ParamValueType<Type>;
+  type: T;
+  defaultValue?: ParamValueType<T>;
 }
 
 export interface Template<P extends Record<string, TemplateParam<ParamType>>> {

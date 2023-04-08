@@ -6,6 +6,7 @@ import _lodash from "lodash";
 import _which from "which";
 
 import * as types from "../types";
+import _prompt from "../utils/prompt";
 import _sleep from "./sleep";
 import shell from "./shell";
 
@@ -14,6 +15,7 @@ Object.assign(global, {
   auto: types.auto,
   // internal utils
   ...shell,
+  prompt: _prompt,
   sleep: _sleep,
   // external utils
   $$: _execa.$({ verbose: true }),
@@ -42,6 +44,8 @@ declare global {
   const cd: typeof shell.cd;
   const cwd: typeof shell.cwd;
   const pwd: string;
+  // @ts-ignore damn you tsserver
+  const prompt: typeof _prompt;
   const sleep: typeof _sleep;
   const $$: typeof _execa.$;
   const $: typeof _execa.$;

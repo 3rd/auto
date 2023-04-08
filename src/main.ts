@@ -8,12 +8,12 @@ import chalk from "chalk";
 import spawn from "cross-spawn";
 import { cli as cleye, command } from "cleye";
 import { globSync } from "glob";
-import enquirer from "enquirer";
 import fs from "fs-extra";
 
 import packageJson from "../package.json";
 import Context from "./context/Context";
 import { autoSymbol, AutoType } from "./types";
+import * as prompt from "./utils/prompt";
 
 const createListCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "list", alias: "ls", flags: { all: Boolean } }, (argv) => {
@@ -39,33 +39,16 @@ const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =
     }
     const templateParams = template.bootstrapParams();
     for (const [_, param] of Object.entries(templateParams)) {
-      const type = param.type as unknown;
-      if (type === "boolean") {
-        const { value } = await enquirer.prompt<{ value: string }>({
-          type: "confirm",
-          name: "value",
-          message: param.title,
-          initial: param.value,
-        });
-        param.value = value;
-      }
-      if (type === "number") {
-        const { value } = await enquirer.prompt<{ value: string }>({
-          type: "numeral",
-          name: "value",
-          message: param.title,
-          initial: param.value,
-        });
-        param.value = value;
-      }
-      if (type === "string") {
-        const { value } = await enquirer.prompt<{ value: string }>({
-          type: "input",
-          name: "value",
-          message: param.title,
-          initial: param.value,
-        });
-        param.value = value;
+      switch (param.type) {
+        case "boolean":
+          param.value = await prompt.confirm(param.title, param.value as boolean);
+          break;
+        case "number":
+          param.value = await prompt.number(param.title, param.value as number);
+          break;
+        case "string":
+          param.value = await prompt.string(param.title, param.value as string);
+          break;
       }
     }
 
@@ -93,6 +76,7 @@ const createReplCommand = (context: Context, templates: ReturnType<AutoType>[]) 
     repl.start({
       prompt: chalk.greenBright("> "),
       useGlobal: true,
+      terminal: false,
     });
   });
 
@@ -110,11 +94,9 @@ const main = async () => {
     console.log(`- Or set the ${chalk.cyan("$REPO")} environment variable.`);
 
     // auto-create repo directory
-    const { value: ok } = await enquirer.prompt<{ value: string }>({
-      type: "confirm",
-      name: "value",
-      message: `Do you want me to create a directory at ${chalk.magenta(configRepositoryPath)}?`,
-    });
+    const ok = await prompt.confirm(
+      "Do you want me to create a directory at " + chalk.magenta(configRepositoryPath) + "?"
+    );
     if (ok) {
       await fs.mkdirp(configRepositoryPath);
       console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(configRepositoryPath));
@@ -130,11 +112,7 @@ const main = async () => {
     if (!fs.existsSync(tsconfigPath)) {
       console.log(chalk.yellow.bold("Warning:"), "Cannot find", chalk.cyan("tsconfig.json"), "in your repository.");
 
-      const { value: ok } = await enquirer.prompt<{ value: string }>({
-        type: "confirm",
-        name: "value",
-        message: "Do you want me to set it up?",
-      });
+      const ok = await prompt.confirm("Do you want me to set it up?");
       if (ok) {
         const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
         await fs.writeFile(
