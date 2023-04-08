@@ -2,11 +2,13 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import repl from "node:repl";
+import chalk from "chalk";
 
 import spawn from "cross-spawn";
 import { cli as cleye, command } from "cleye";
 import { globSync } from "glob";
 import enquirer from "enquirer";
+import fs from "fs-extra";
 
 import packageJson from "../package.json";
 import Context from "./context/Context";
@@ -115,11 +117,36 @@ const createReplCommand = (context: Context, templates: ReturnType<AsTemplateTyp
 const main = async () => {
   // const templateRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
   const templateRepositoryPath = "/home/rabbit/brain/core/test/templates";
-  const tsconfigPath = resolve(templateRepositoryPath, "tsconfig.json");
+  // const templateRepositoryPath = "/home/rabbit/brain/core/generator/templates";
 
   if (typeof process.send !== "function") {
     const argv = process.argv.slice(1);
     const esmLoaderPath = require.resolve("tsx");
+
+    // auto-setup repo/tsconfig.json
+    const tsconfigPath = resolve(templateRepositoryPath, "tsconfig.json");
+    if (!fs.existsSync(tsconfigPath)) {
+      console.log(chalk.yellow.bold("Warning:"), "Cannot find", chalk.cyan("tsconfig.json"), "in your repository.");
+
+      const { value: ok } = await enquirer.prompt<{ value: string }>({
+        type: "confirm",
+        name: "value",
+        message: "Do you want me to set it up?",
+      });
+
+      if (ok) {
+        const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
+        await fs.writeFile(
+          tsconfigPath,
+          JSON.stringify({
+            compilerOptions: {
+              typeRoots: [pathToDist],
+            },
+          })
+        );
+        console.log(chalk.green("Success:"), "Wrote", chalk.cyan("tsconfig.json"), "to", chalk.magenta(tsconfigPath));
+      }
+    }
 
     const childProcess = spawn(process.execPath, ["--loader", esmLoaderPath, ...argv], {
       stdio: ["inherit", "inherit", "inherit", "ipc"],
@@ -128,7 +155,7 @@ const main = async () => {
         NODE_OPTIONS: [
           "--experimental-specifier-resolution=node",
           "--no-warnings=ExperimentalWarning",
-          `ESBK_TSCONFIG_PATH=${tsconfigPath}`,
+          // `ESBK_TSCONFIG_PATH=${tsconfigPath}`,
         ].join(" "),
       },
     });
