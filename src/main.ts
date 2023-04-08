@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
 import repl from "node:repl";
 
 import spawn from "cross-spawn";
@@ -46,11 +45,11 @@ const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType
       const { generatorId } = argv._;
       const template = templates.find((t) => t.id === generatorId);
       if (!template) {
-        console.error(`Template ${generatorId} not found`);
+        console.error(chalk.red(`Error: Template "%s" not found.`), generatorId);
         process.exit(1);
       }
       if (template.isValidForContext && !template.isValidForContext(context)) {
-        console.error(`Template ${generatorId} is not valid for this context`);
+        console.error(chalk.red(`Error: Template "%s" is not valid for this context.`), generatorId);
         process.exit(1);
       }
       const templateParams = template.bootstrapParams();
@@ -87,6 +86,7 @@ const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType
 
       const paramValues = Object.fromEntries(Object.entries(templateParams).map(([key, param]) => [key, param.value]));
 
+      console.log(chalk.magenta(`Running "%s"...`), template.id);
       template.generate({
         context,
         self: template,
@@ -107,7 +107,7 @@ const createReplCommand = (context: Context, templates: ReturnType<AsTemplateTyp
     (global as any).context = context;
     (global as any).templates = templates;
     repl.start({
-      prompt: "> ",
+      prompt: chalk.greenBright("> "),
       useGlobal: true,
     });
   });
