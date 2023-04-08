@@ -28,13 +28,14 @@ export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
   isValidForContext: (context: Context) => boolean;
   generate: (args: {
     context: Context;
-    template: Template<P>;
+    self: Template<P>;
     params: { [K in keyof P]: ParamValueType<P[K]["type"]> };
+    substitute: (source: string, params: Partial<{ [K in keyof P]: ParamValueType<P[K]["type"]> }>) => string;
     lib: Library;
   }) => void;
 }
 
-const getDefaultParamValue = <T extends ParamType>(type: T): ParamValueType<T> => {
+const getDefaultParamValue = <T extends ParamType>(type: T) => {
   const defaultValues: Record<ParamType, ParamValueType<ParamType>> = {
     boolean: false,
     number: 0,

@@ -1,4 +1,5 @@
 import fs from "fs-extra";
+import { resolve } from "path";
 
 type Dependency = {
   name: string;
@@ -12,45 +13,8 @@ class Project {
     this.rootDirectory = rootDirectory;
   }
 
-  hasPath(path: string) {
-    return fs.existsSync(`${this.rootDirectory}/${path}`);
-  }
-
-  hasFile(path: string) {
-    return this.hasPath(path) && fs.lstatSync(`${this.rootDirectory}/${path}`).isFile();
-  }
-
-  hasDirectory(path: string) {
-    return this.hasPath(path) && fs.lstatSync(`${this.rootDirectory}/${path}`).isDirectory();
-  }
-
-  readFile(path: string) {
-    return fs.readFileSync(`${this.rootDirectory}/${path}`, "utf8");
-  }
-
-  readJSON(path: string) {
-    return fs.readJsonSync(`${this.rootDirectory}/${path}`);
-  }
-
-  writeFile(path: string, content: string) {
-    const fullPath = `${this.rootDirectory}/${path}`;
-    console.log("Writing file (full): ", fullPath);
-    if (fs.existsSync(fullPath)) {
-      throw new Error(`File already exists: ${fullPath}`);
-    }
-    fs.writeFileSync(fullPath, content);
-  }
-
-  createDirectory(path: string) {
-    const fullPath = `${this.rootDirectory}/${path}`;
-    if (fs.existsSync(fullPath)) {
-      throw new Error(`Directory already exists: ${fullPath}`);
-    }
-    fs.mkdirSync(fullPath);
-  }
-
-  resolvePath(path: string) {
-    return `${this.rootDirectory}/${path}`;
+  get isGoProject() {
+    return this.hasFile("go.mod");
   }
 
   get isJavaScriptProject() {
@@ -68,36 +32,20 @@ class Project {
     return packageJson?.engines?.node !== undefined;
   }
 
-  get isReactProject() {
-    return this.isJavaScriptProject && this.hasDependency("react");
-  }
-
-  get isVueProject() {
-    return this.isJavaScriptProject && this.hasDependency("vue");
-  }
-
-  get isSvelteProject() {
-    return this.isJavaScriptProject && this.hasDependency("svelte");
-  }
-
-  get isGoProject() {
-    return this.hasFile("go.mod");
-  }
-
   get dependencies() {
     const dependencies: Dependency[] = [];
     if (this.isJavaScriptProject) {
       const packageJson = this.readJSON("package.json");
       for (const [name, version] of Object.entries({
-        ...(packageJson.dependencies ?? {}),
-        ...(packageJson.devDependencies ?? {}),
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies,
       })) {
         dependencies.push({ name, version: typeof version === "string" ? version : undefined });
       }
     }
     if (this.isGoProject) {
       const goMod = this.readFile("go.mod");
-      const requireLines = goMod.match(/require \(([\s\S]*?)\)/)?.[1];
+      const requireLines = /require \(([\S\s]*?)\)/.exec(goMod)?.[1];
       if (requireLines) {
         for (const module of requireLines.trim().split("\n")) {
           const [name, version] = module.trim().split(" ");
@@ -106,6 +54,48 @@ class Project {
       }
     }
     return dependencies;
+  }
+
+  resolvePath(path: string) {
+    return resolve(this.rootDirectory, path);
+  }
+
+  hasPath(path: string) {
+    return fs.existsSync(this.resolvePath(path));
+  }
+
+  hasFile(path: string) {
+    return this.hasPath(path) && fs.lstatSync(this.resolvePath(path)).isFile();
+  }
+
+  readFile(path: string) {
+    return fs.readFileSync(this.resolvePath(path), "utf8");
+  }
+
+  writeFile(path: string, content: string) {
+    const resolvedPath = this.resolvePath(path);
+    console.log("project.writeFile:", resolvedPath);
+    if (fs.existsSync(resolvedPath)) {
+      throw new Error(`File already exists: ${resolvedPath}`);
+    }
+    fs.writeFileSync(resolvedPath, content);
+  }
+
+  hasDirectory(path: string) {
+    return this.hasPath(path) && fs.lstatSync(this.resolvePath(path)).isDirectory();
+  }
+
+  createDirectory(path: string) {
+    const resolvedPath = this.resolvePath(path);
+    console.log("project.createDirectory:", resolvedPath);
+    if (fs.existsSync(resolvedPath)) {
+      throw new Error(`Directory already exists: ${resolvedPath}`);
+    }
+    fs.mkdirSync(resolvedPath);
+  }
+
+  readJSON(path: string) {
+    return fs.readJsonSync(this.resolvePath(path));
   }
 
   hasDependency(name: string, version?: string) {

@@ -1,0 +1,1 @@
+export { asTemplate } from "./types";
