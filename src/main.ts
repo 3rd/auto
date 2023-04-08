@@ -13,9 +13,9 @@ import fs from "fs-extra";
 
 import packageJson from "../package.json";
 import Context from "./context/Context";
-import { AsTemplateType } from "./types";
+import { autoSymbol, AutoType } from "./types";
 
-const createListCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
+const createListCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "list", alias: "ls", flags: { all: Boolean } }, (argv) => {
     const filteredTemplates = argv.flags.all
       ? templates
@@ -25,7 +25,7 @@ const createListCommand = (context: Context, templates: ReturnType<AsTemplateTyp
     }
   });
 
-const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
+const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "run", alias: "r", parameters: ["<generator id>"] }, async (argv) => {
     const { generatorId } = argv._;
     const template = templates.find((t) => t.id === generatorId);
@@ -86,7 +86,7 @@ const createRunCommand = (context: Context, templates: ReturnType<AsTemplateType
     });
   });
 
-const createReplCommand = (context: Context, templates: ReturnType<AsTemplateType>[]) =>
+const createReplCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "repl" }, async () => {
     (global as any).context = context;
     (global as any).templates = templates;
@@ -153,11 +153,7 @@ const main = async () => {
       stdio: ["inherit", "inherit", "inherit", "ipc"],
       env: {
         ...process.env,
-        NODE_OPTIONS: [
-          "--experimental-specifier-resolution=node",
-          "--no-warnings=ExperimentalWarning",
-          // `ESBK_TSCONFIG_PATH=${tsconfigPath}`,
-        ].join(" "),
+        NODE_OPTIONS: ["--experimental-specifier-resolution=node", "--no-warnings=ExperimentalWarning"].join(" "),
       },
     });
     childProcess.on("close", (code) => process.exit(code!));
@@ -166,10 +162,13 @@ const main = async () => {
 
   const context = new Context();
 
-  const templates: ReturnType<AsTemplateType>[] = [];
+  const templates: ReturnType<AutoType>[] = [];
   for (const file of globSync(`${repositoryPath}/**/*.ts`)) {
-    const template = await import(file);
-    templates.push(template.default);
+    try {
+      const template = await import(file);
+      if (!template.default[autoSymbol]) continue;
+      templates.push(template.default);
+    } catch {}
   }
 
   const cli = cleye({

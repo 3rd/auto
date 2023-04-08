@@ -38,8 +38,11 @@ const getDefaultParamValue = <T extends ParamType>(type: T) => {
   return defaultValues[type] as ParamValueType<T>;
 };
 
-export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(template: Template<P>) => {
+export const autoSymbol = Symbol.for("auto");
+
+export const auto = <P extends Record<string, TemplateParam<ParamType>>>(template: Template<P>) => {
   return {
+    [autoSymbol]: true,
     ...template,
     bootstrapParams: () => {
       if (!template.params) return {};
@@ -53,4 +56,4 @@ export const asTemplate = <P extends Record<string, TemplateParam<ParamType>>>(t
   };
 };
 
-export type AsTemplateType = typeof asTemplate;
+export type AutoType = typeof auto;

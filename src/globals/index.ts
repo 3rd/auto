@@ -11,7 +11,7 @@ import shell from "./shell";
 
 Object.assign(global, {
   // core
-  asTemplate: types.asTemplate,
+  auto: types.auto,
   // internal utils
   ...shell,
   sleep: _sleep,
@@ -38,7 +38,7 @@ Object.defineProperty(global, "pwd", {
 });
 
 declare global {
-  const asTemplate: types.AsTemplateType;
+  const auto: types.AutoType;
   const cd: typeof shell.cd;
   const cwd: typeof shell.cwd;
   const pwd: string;
