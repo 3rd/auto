@@ -3,18 +3,18 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import repl from "node:repl";
 
-import envPaths from "env-paths";
-import chalk from "chalk";
-import spawn from "cross-spawn";
 import { cli as cleye, command } from "cleye";
-import { globSync } from "glob";
+import chalk from "chalk";
+import envPaths from "env-paths";
 import fs from "fs-extra";
+import spawn from "cross-spawn";
+import { globSync } from "glob";
 
-import packageJson from "../package.json";
 import Context from "./context/Context";
-import { autoSymbol, AutoType } from "./types";
+import packageJson from "../package.json";
 import * as prompt from "./utils/prompt";
 import { tildify } from "./utils/path";
+import { autoSymbol, AutoType } from "./types";
 
 const createListCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "list", alias: "ls", flags: { all: Boolean } }, (argv) => {
@@ -68,10 +68,10 @@ const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =
 
     const paramValues = Object.fromEntries(Object.entries(templateParams).map(([key, param]) => [key, param.value]));
 
-    template.generate({
+    template.run({
       context,
       self: template,
-      params: paramValues as Parameters<typeof template.generate>[0]["params"],
+      params: paramValues as Parameters<typeof template.run>[0]["params"],
     });
   });
 

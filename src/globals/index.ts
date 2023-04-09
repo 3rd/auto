@@ -1,8 +1,8 @@
-import * as _execa from "execa";
 import * as _chalk from "chalk";
+import * as _execa from "execa";
 import * as _fs from "fs-extra";
-import * as _lodash from "lodash";
 import * as _glob from "glob";
+import * as _lodash from "lodash";
 import * as _mustache from "mustache";
 import * as _which from "which";
 

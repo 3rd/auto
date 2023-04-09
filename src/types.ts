@@ -21,7 +21,7 @@ export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
   title?: string;
   params?: P;
   isValidForContext?: (context: Context) => boolean;
-  generate: (args: {
+  run: (args: {
     context: Context;
     self: Template<P>;
     params: { [K in keyof P]: ParamValueType<P[K]["type"]> };
