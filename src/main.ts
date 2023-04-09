@@ -14,6 +14,7 @@ import packageJson from "../package.json";
 import Context from "./context/Context";
 import { autoSymbol, AutoType } from "./types";
 import * as prompt from "./utils/prompt";
+import { tildify } from "./utils/path";
 
 const createListCommand = (context: Context, templates: ReturnType<AutoType>[]) =>
   command({ name: "list", alias: "ls", flags: { all: Boolean } }, (argv) => {
@@ -21,7 +22,12 @@ const createListCommand = (context: Context, templates: ReturnType<AutoType>[]) 
       ? templates
       : templates.filter((t) => !t.isValidForContext || t.isValidForContext(context));
     for (const template of filteredTemplates) {
-      console.log(`[${template.id}] ${template.title}`);
+      console.log(
+        chalk.grey("-"),
+        chalk.magenta(`<${template.id}>`),
+        chalk.cyan(template.title ?? ""),
+        template.isLocal ? chalk.blue("(local)") : chalk.yellow("(main)")
+      );
     }
   });
 
@@ -29,6 +35,7 @@ const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =
   command({ name: "run", alias: "r", parameters: ["<generator id>"] }, async (argv) => {
     const { generatorId } = argv._;
     const template = templates.find((t) => t.id === generatorId);
+
     if (!template) {
       console.error(chalk.red(`Error: Template "%s" not found.`), generatorId);
       process.exit(1);
@@ -37,24 +44,30 @@ const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =
       console.error(chalk.red(`Error: Template "%s" is not valid for this context.`), generatorId);
       process.exit(1);
     }
+
+    console.log(chalk.blue("Info:"), "Running", chalk.magenta(tildify(template.path)));
+
     const templateParams = template.bootstrapParams();
     for (const [_, param] of Object.entries(templateParams)) {
+      // eslint-disable-next-line default-case
       switch (param.type) {
-        case "boolean":
+        case "boolean": {
           param.value = await prompt.confirm(param.title, param.value as boolean);
           break;
-        case "number":
+        }
+        case "number": {
           param.value = await prompt.number(param.title, param.value as number);
           break;
-        case "string":
+        }
+        case "string": {
           param.value = await prompt.string(param.title, param.value as string);
           break;
+        }
       }
     }
 
     const paramValues = Object.fromEntries(Object.entries(templateParams).map(([key, param]) => [key, param.value]));
 
-    console.log(chalk.magenta(`Running "%s"...`), template.id);
     template.generate({
       context,
       self: template,
@@ -81,25 +94,47 @@ const createReplCommand = (context: Context, templates: ReturnType<AutoType>[]) 
   });
 
 const main = async () => {
+  // main repos
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
   const configRepositoryPath = envPaths(packageJson.name, { suffix: "" }).config;
   const envRepositoryPath = process.env.REPO;
-  const repositoryPath = fs.existsSync(developmentRepositoryPath)
+  let mainRepositoryPath = fs.existsSync(developmentRepositoryPath)
     ? developmentRepositoryPath
     : envRepositoryPath ?? configRepositoryPath;
+  const hasMainRepository = fs.existsSync(mainRepositoryPath);
+  if (hasMainRepository) {
+    console.log(chalk.blue("Info:"), "Found main repository:", chalk.magenta(tildify(mainRepositoryPath)));
+  }
 
-  if (!fs.existsSync(repositoryPath)) {
+  // local repos
+  const localRepositoryPaths = ["./auto", "./.auto"].map((p) => resolve(process.cwd(), p));
+  const localRepositoryPath = localRepositoryPaths.find((p) => fs.existsSync(p));
+  const hasLocalRepository = Boolean(localRepositoryPath);
+  if (localRepositoryPath) {
+    console.log(chalk.blue("Info:"), "Found local repository:", chalk.magenta(tildify(localRepositoryPath)));
+  }
+
+  // resolve repos
+  const repositoryPaths: string[] = [];
+  if (hasMainRepository) repositoryPaths.push(mainRepositoryPath);
+  if (localRepositoryPath) repositoryPaths.push(localRepositoryPath);
+
+  // no repo found
+  if (!hasMainRepository && !hasLocalRepository) {
     console.error(chalk.red("Error:"), "Cannot resolve repository directory, to fix this either:");
-    console.log(`- Create a directory at: ${chalk.magenta(configRepositoryPath)}`);
+    console.log(`- Create a directory at: ${chalk.magenta(tildify(configRepositoryPath))}`);
     console.log(`- Or set the ${chalk.cyan("$REPO")} environment variable.`);
 
-    // auto-create repo directory
+    // auto-create main repo (~/.config/auto)
     const ok = await prompt.confirm(
-      "Do you want me to create a directory at " + chalk.magenta(configRepositoryPath) + "?"
+      `Do you want me to create a directory at ${chalk.magenta(tildify(configRepositoryPath))}?`
     );
     if (ok) {
       await fs.mkdirp(configRepositoryPath);
-      console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(configRepositoryPath));
+      console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(tildify(configRepositoryPath)));
+      mainRepositoryPath = configRepositoryPath;
+    } else {
+      process.exit(1);
     }
   }
 
@@ -108,22 +143,31 @@ const main = async () => {
     const esmLoaderPath = require.resolve("tsx");
 
     // auto-setup repo/tsconfig.json
-    const tsconfigPath = resolve(repositoryPath, "tsconfig.json");
-    if (!fs.existsSync(tsconfigPath)) {
-      console.log(chalk.yellow.bold("Warning:"), "Cannot find", chalk.cyan("tsconfig.json"), "in your repository.");
-
-      const ok = await prompt.confirm("Do you want me to set it up?");
-      if (ok) {
-        const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
-        await fs.writeFile(
-          tsconfigPath,
-          JSON.stringify({
-            compilerOptions: {
-              typeRoots: [pathToDist],
-            },
-          })
+    for (const repoPath of repositoryPaths) {
+      const tsconfigPath = resolve(repoPath, "tsconfig.json");
+      if (!fs.existsSync(tsconfigPath)) {
+        console.log(
+          chalk.yellow.bold("Warning:"),
+          "Cannot find",
+          // eslint-disable-next-line sonarjs/no-nested-template-literals
+          `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("tsconfig.json")}`
         );
-        console.log(chalk.green("Success:"), "Wrote", chalk.cyan("tsconfig.json"), "to", chalk.magenta(tsconfigPath));
+
+        const ok = await prompt.confirm("Do you want me to set it up?");
+        if (ok) {
+          const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
+          await fs.writeFile(
+            tsconfigPath,
+            JSON.stringify({ compilerOptions: { strict: true, typeRoots: [pathToDist] } }, null, 2)
+          );
+          console.log(
+            chalk.green("Success:"),
+            "Wrote",
+            chalk.cyan("tsconfig.json"),
+            "to",
+            chalk.magenta(tildify(tsconfigPath))
+          );
+        }
       }
     }
 
@@ -140,14 +184,44 @@ const main = async () => {
 
   const context = new Context();
 
-  const templates: ReturnType<AutoType>[] = [];
-  for (const file of globSync(`${repositoryPath}/**/*.ts`)) {
+  const templateMap: Record<string, ReturnType<AutoType>> = {};
+  const files = repositoryPaths
+    .flatMap((repositoryPath) => ({ repositoryPath, files: globSync(`${repositoryPath}/**/*.ts`) }))
+    .reduce<{ repositoryPath: string; path: string }[]>((acc, repo) => {
+      acc.push(...repo.files.map((file) => ({ repositoryPath: repo.repositoryPath, path: file })));
+      return acc;
+    }, []);
+
+  for (const file of files) {
     try {
-      const template = await import(file);
-      if (!template.default[autoSymbol]) continue;
-      templates.push(template.default);
-    } catch {}
+      const importedModule = await import(file.path);
+      if (importedModule.default[autoSymbol]) {
+        const template: ReturnType<AutoType> = { ...importedModule.default };
+        template.path = file.path;
+        if (file.repositoryPath === localRepositoryPath) template.isLocal = true;
+
+        const previousTemplate = templateMap[template.id];
+        if (
+          (previousTemplate && previousTemplate.isLocal && template.isLocal) ||
+          (previousTemplate && !previousTemplate.isLocal && !template.isLocal)
+        ) {
+          console.error(chalk.red("Fatal:"), "Duplicate template:", chalk.magenta(template.id));
+          console.log(chalk.grey("-"), "First found at:", chalk.magenta(tildify(previousTemplate.path)));
+          console.log(chalk.grey("-"), "Second found at:", chalk.magenta(tildify(file.path)));
+          process.exit(1);
+        }
+
+        templateMap[template.id] = template;
+        console.log(chalk.green("Success:"), "Loaded:", chalk.magenta(file.path));
+      } else {
+        console.log(chalk.yellow("Skipped:"), "Not a module:", chalk.magenta(file.path));
+      }
+    } catch {
+      console.log(chalk.red("Skipped:"), "Loading error:", chalk.magenta(file.path));
+    }
   }
+
+  const templates = Object.values(templateMap);
 
   const cli = cleye({
     name: packageJson.name,

@@ -44,6 +44,8 @@ export const auto = <P extends Record<string, TemplateParam<ParamType>>>(templat
   return {
     [autoSymbol]: true,
     ...template,
+    isLocal: false,
+    path: "",
     bootstrapParams: () => {
       if (!template.params) return {};
       return Object.fromEntries(
