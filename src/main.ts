@@ -151,7 +151,7 @@ const main = async () => {
           const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
           await fs.writeFile(
             tsconfigPath,
-            JSON.stringify({ compilerOptions: { strict: true, typeRoots: [pathToDist] } }, null, 2)
+            JSON.stringify({ compilerOptions: { strict: true, lib: [], typeRoots: [pathToDist] } }, null, 2)
           );
           console.log(
             chalk.green("Success:"),
