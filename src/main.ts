@@ -72,13 +72,6 @@ const createRunCommand = (context: Context, templates: ReturnType<AutoType>[]) =
       context,
       self: template,
       params: paramValues as Parameters<typeof template.generate>[0]["params"],
-      substitute: (source, params: Partial<Parameters<typeof template.generate>[0]["params"]>) => {
-        let result = source;
-        for (const [key, value] of Object.entries(params)) {
-          result = result.replace(new RegExp(`{{${key}}}`, "g"), value as string);
-        }
-        return result;
-      },
     });
   });
 

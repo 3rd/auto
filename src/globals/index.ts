@@ -26,6 +26,7 @@ Object.assign(global, {
   fs: _fs,
   glob: _glob,
   lodash: _lodash,
+  mustache: _mustache,
   which: _which,
 });
 
@@ -55,5 +56,6 @@ declare global {
   const fs: typeof _fs;
   const glob: typeof _glob;
   const lodash: typeof _lodash;
+  const mustache: typeof _mustache;
   const which: typeof _which;
 }
