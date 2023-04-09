@@ -175,45 +175,51 @@ const main = async () => {
     return;
   }
 
-  const context = new Context();
-
   const templateMap: Record<string, ReturnType<AutoType>> = {};
-  const files = repositoryPaths
-    .flatMap((repositoryPath) => ({ repositoryPath, files: globSync(`${repositoryPath}/**/*.ts`) }))
-    .reduce<{ repositoryPath: string; path: string }[]>((acc, repo) => {
-      acc.push(...repo.files.map((file) => ({ repositoryPath: repo.repositoryPath, path: file })));
-      return acc;
-    }, []);
 
-  for (const file of files) {
-    try {
-      const importedModule = await import(file.path);
-      if (importedModule.default[autoSymbol]) {
-        const template: ReturnType<AutoType> = { ...importedModule.default };
-        template.path = file.path;
-        if (file.repositoryPath === localRepositoryPath) template.isLocal = true;
-
-        const previousTemplate = templateMap[template.id];
-        if (
-          (previousTemplate && previousTemplate.isLocal && template.isLocal) ||
-          (previousTemplate && !previousTemplate.isLocal && !template.isLocal)
-        ) {
-          console.error(chalk.red("Fatal:"), "Duplicate template:", chalk.magenta(template.id));
-          console.log(chalk.grey("-"), "First found at:", chalk.magenta(tildify(previousTemplate.path)));
-          console.log(chalk.grey("-"), "Second found at:", chalk.magenta(tildify(file.path)));
-          process.exit(1);
+  const files = repositoryPaths.flatMap((repositoryPath) =>
+    globSync(`${repositoryPath}/**/*.ts`).map((path) => ({ repositoryPath, path }))
+  );
+  const importedModules = (await Promise.all(
+    files
+      .map(async (file) => {
+        try {
+          return { file, module: await import(file.path) };
+        } catch {
+          console.log(chalk.red("Skipped:"), "Loading error:", chalk.magenta(file.path));
+          return null;
         }
+      })
+      .filter(Boolean)
+  )) as Array<{ file: typeof files[0]; module: any }>;
 
-        templateMap[template.id] = template;
-        console.log(chalk.green("Success:"), "Loaded:", chalk.magenta(file.path));
-      } else {
-        console.log(chalk.yellow("Skipped:"), "Not a module:", chalk.magenta(file.path));
+  for (const { file, module } of importedModules) {
+    if (!file || !module) continue;
+
+    if (module.default[autoSymbol]) {
+      const { repositoryPath, path } = file;
+      const isLocal = repositoryPath === localRepositoryPath;
+      const template: ReturnType<AutoType> = { ...module.default, path, isLocal };
+
+      const previousTemplate = templateMap[template.id];
+      if (
+        (previousTemplate?.isLocal && template.isLocal) ||
+        (previousTemplate && !previousTemplate.isLocal && !template.isLocal)
+      ) {
+        console.error(chalk.red("Fatal:"), "Duplicate template:", chalk.magenta(template.id));
+        console.log(chalk.grey("-"), "First found at:", chalk.magenta(tildify(previousTemplate.path)));
+        console.log(chalk.grey("-"), "Second found at:", chalk.magenta(tildify(file.path)));
+        process.exit(1);
       }
-    } catch {
-      console.log(chalk.red("Skipped:"), "Loading error:", chalk.magenta(file.path));
+
+      templateMap[template.id] = template;
+      console.log(chalk.green("Success:"), "Loaded:", chalk.magenta(file.path));
+    } else {
+      console.log(chalk.yellow("Skipped:"), "Not a module:", chalk.magenta(file.path));
     }
   }
 
+  const context = new Context();
   const templates = Object.values(templateMap);
 
   const cli = cleye({

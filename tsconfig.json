@@ -17,8 +17,5 @@
   },
   "include": [
     "./src"
-  ],
-  "exclude": [
-    "./src/globals"
   ]
 }

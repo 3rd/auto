@@ -1,16 +1,17 @@
 import * as _execa from "execa";
-import _chalk from "chalk";
-import _fs from "fs-extra";
-import _glob from "glob";
-import _lodash from "lodash";
-import _which from "which";
+import * as _chalk from "chalk";
+import * as _fs from "fs-extra";
+import * as _lodash from "lodash";
+import * as _glob from "glob";
+import * as _mustache from "mustache";
+import * as _which from "which";
 
 import * as types from "../types";
 import _prompt from "../utils/prompt";
 import _sleep from "./sleep";
 import shell from "./shell";
 
-Object.assign(global, {
+Object.assign(globalThis, {
   // core
   auto: types.auto,
   // internal utils
@@ -31,7 +32,7 @@ Object.assign(global, {
 });
 
 // accessors
-Object.defineProperty(global, "pwd", {
+Object.defineProperty(globalThis, "pwd", {
   get() {
     return shell.cwd();
   },

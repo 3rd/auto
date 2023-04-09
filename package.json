@@ -11,14 +11,13 @@
     "name": "Andrei Neculaesei",
     "email": "3rd@users.noreply.github.com"
   },
-  "license": "GPLv2",
+  "license": "GPL-2.0",
   "type": "module",
   "files": [
     "dist"
   ],
   "main": "./dist/main.cjs",
   "exports": {
-    "./package.json": "./package.json",
     "./globals": {
       "require": "./dist/globals/index.cjs",
       "import": "./dist/globals/index.mjs",
@@ -38,14 +37,14 @@
     "tsc": "tsc"
   },
   "devDependencies": {
-    "@types/cross-spawn": "^6.0.2",
-    "@types/fs-extra": "^11.0.1",
-    "@types/lodash": "^4.14.192",
     "@types/node": "^18.15.11",
     "pkgroll": "^1.9.0",
     "typescript": "^5.0.3"
   },
   "dependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "@types/fs-extra": "^11.0.1",
+    "@types/lodash": "^4.14.192",
     "@types/mustache": "^4.2.2",
     "@types/which": "^3.0.0",
     "chalk": "^5.2.0",

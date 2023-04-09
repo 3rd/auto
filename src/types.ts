@@ -25,7 +25,6 @@ export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
     context: Context;
     self: Template<P>;
     params: { [K in keyof P]: ParamValueType<P[K]["type"]> };
-    substitute: (source: string, params: Partial<{ [K in keyof P]: ParamValueType<P[K]["type"]> }>) => string;
   }) => void;
 }
 
