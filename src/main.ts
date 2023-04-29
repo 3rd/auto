@@ -133,11 +133,13 @@ const createReplCommand = (project: Project, templates: AutoReturnType[]) =>
   command({ name: "repl" }, async () => {
     (global as any).project = project;
     (global as any).templates = templates;
-    repl.start({
+    const r = repl.start({
       prompt: chalk.greenBright("> "),
       useGlobal: true,
-      terminal: false,
+      terminal: true,
     });
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    r.setupHistory(resolve(envPaths(packageJson.name, { suffix: "" }).cache, "history"), () => {});
   });
 
 const main = async () => {
