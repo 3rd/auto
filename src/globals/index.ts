@@ -1,3 +1,4 @@
+/* eslint-disable @shopify/restrict-full-import */
 import * as _chalk from "chalk";
 import * as _execa from "execa";
 import * as _glob from "glob";

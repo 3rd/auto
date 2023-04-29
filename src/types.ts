@@ -1,4 +1,4 @@
-import Project from "./context/Project";
+import Project from "./Project";
 
 export type ParamType = "boolean" | "number" | "string";
 
