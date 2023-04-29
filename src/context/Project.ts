@@ -1,16 +1,37 @@
 import fs from "fs-extra";
 import { resolve } from "node:path";
+import { findUpSync } from "find-up";
+import chalk from "chalk";
 
 type Dependency = {
   name: string;
   version?: string;
 };
 
+const rootMatchingConfigurations = [
+  { match: "package.json", type: "file" },
+  { match: "go.mod", type: "file" },
+  { match: "Makefile", type: "file" },
+  { match: ".git", type: "directory" },
+] as const;
+
 class Project {
   rootDirectory: string;
 
   constructor(rootDirectory: string) {
     this.rootDirectory = rootDirectory;
+  }
+
+  static resolveFromDirectory(directory: string = process.cwd()) {
+    let rootDirectory = directory;
+    for (const { match, type } of rootMatchingConfigurations) {
+      const foundPath = findUpSync(match, { cwd: rootDirectory, type });
+      if (foundPath) {
+        rootDirectory = resolve(foundPath, "..");
+        break;
+      }
+    }
+    return new Project(rootDirectory);
   }
 
   get isGoProject() {
@@ -56,8 +77,8 @@ class Project {
     return dependencies;
   }
 
-  resolvePath(path: string) {
-    return resolve(this.rootDirectory, path);
+  resolvePath(...paths: string[]) {
+    return resolve(this.rootDirectory, ...paths);
   }
 
   hasPath(path: string) {
@@ -74,7 +95,7 @@ class Project {
 
   writeFile(path: string, content: string) {
     const resolvedPath = this.resolvePath(path);
-    console.log("project.writeFile:", resolvedPath);
+    console.log(chalk.blue("Writing file:"), resolvedPath);
     if (fs.existsSync(resolvedPath)) {
       throw new Error(`File already exists: ${resolvedPath}`);
     }
@@ -87,11 +108,11 @@ class Project {
 
   createDirectory(path: string) {
     const resolvedPath = this.resolvePath(path);
-    console.log("project.createDirectory:", resolvedPath);
+    console.log(chalk.blue("Creating directory:"), resolvedPath);
     if (fs.existsSync(resolvedPath)) {
       throw new Error(`Directory already exists: ${resolvedPath}`);
     }
-    fs.mkdirSync(resolvedPath);
+    fs.mkdirSync(resolvedPath, { recursive: true });
   }
 
   readJSON(path: string) {

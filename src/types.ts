@@ -1,8 +1,8 @@
-import Context from "./context/Context";
+import Project from "./context/Project";
 
-type ParamType = "boolean" | "number" | "string";
+export type ParamType = "boolean" | "number" | "string";
 
-type ParamValueType<T extends ParamType> = T extends "boolean"
+export type ParamValueType<T extends ParamType> = T extends "boolean"
   ? boolean
   : T extends "number"
   ? number
@@ -10,23 +10,34 @@ type ParamValueType<T extends ParamType> = T extends "boolean"
   ? string
   : never;
 
-interface TemplateParam<T extends ParamType> {
+export type TemplateParam<T extends ParamType, P extends Record<string, ParamType>> = {
   title: string;
   type: T;
-  defaultValue?: ParamValueType<T>;
-}
+  defaultValue?:
+    | ParamValueType<T>
+    | ((args: { project: Project; params: { [K in keyof P]: ParamValueType<P[K]> } }) => ParamValueType<T> | undefined);
+  required?: boolean;
+};
 
-export interface Template<P extends Record<string, TemplateParam<ParamType>>> {
+export type Params<T extends Record<string, ParamType> = Record<string, ParamType>> = {
+  [K in keyof T]: TemplateParam<T[K], T> & { type: T[K] };
+};
+
+export type Template<P extends Record<string, ParamType>> = {
   id: string;
   title?: string;
-  params?: P;
-  isValidForContext?: (context: Context) => boolean;
+  params?: Params<P>;
+  isValid?: (project: Project) => boolean;
   run: (args: {
-    context: Context;
+    cwd: string;
+    project: Project;
     self: Template<P>;
-    params: { [K in keyof P]: ParamValueType<P[K]["type"]> };
+    params: { [K in keyof P]: ParamValueType<P[K]> };
+    files: { path: string; content: string }[];
+    fileMap: Record<string, string>;
+    t: (text: string, params?: Record<string, string | number | boolean>) => string;
   }) => void;
-}
+};
 
 const getDefaultParamValue = <T extends ParamType>(type: T) => {
   const defaultValues: Record<ParamType, ParamValueType<ParamType>> = {
@@ -39,7 +50,7 @@ const getDefaultParamValue = <T extends ParamType>(type: T) => {
 
 export const autoSymbol = Symbol.for("auto");
 
-export const auto = <P extends Record<string, TemplateParam<ParamType>>>(template: Template<P>) => {
+export const auto = <P extends Record<string, ParamType>>(template: Template<P>) => {
   return {
     [autoSymbol]: true,
     ...template,
@@ -48,13 +59,17 @@ export const auto = <P extends Record<string, TemplateParam<ParamType>>>(templat
     bootstrapParams: () => {
       if (!template.params) return {};
       return Object.fromEntries(
-        Object.entries<TemplateParam<ParamType>>(template.params).map(([key, param]) => [
-          key,
-          { ...param, value: param.defaultValue ?? getDefaultParamValue(param.type) },
-        ])
+        Object.entries(template.params).map(([key, param]) => {
+          let value = getDefaultParamValue(param.type);
+          if (typeof param.defaultValue !== "function" && param.defaultValue !== undefined) {
+            value = param.defaultValue;
+          }
+          return [key, { ...param, value }];
+        }) as [keyof P, TemplateParam<P[keyof P], P> & { value: ParamValueType<P[keyof P]> }][]
       );
     },
   };
 };
 
 export type AutoType = typeof auto;
+export type AutoReturnType = ReturnType<AutoType>;

@@ -1,17 +1,19 @@
 import * as _chalk from "chalk";
 import * as _execa from "execa";
-import * as _fs from "fs-extra";
 import * as _glob from "glob";
-import * as _lodash from "lodash";
-import * as _mustache from "mustache";
-import * as _which from "which";
+import * as _fs_t from "fs-extra";
+import * as _lodash_t from "lodash";
+import * as _which_t from "which";
+import _fs from "fs-extra";
+import _lodash from "lodash";
+import _which from "which";
 
 import * as types from "../types";
 import _prompt from "../utils/prompt";
 import _sleep from "./sleep";
 import shell from "./shell";
 
-Object.assign(globalThis, {
+Object.assign(global, {
   // core
   auto: types.auto,
   // internal utils
@@ -27,7 +29,6 @@ Object.assign(globalThis, {
   fs: _fs,
   glob: _glob,
   lodash: _lodash,
-  mustache: _mustache,
   which: _which,
 });
 
@@ -54,9 +55,8 @@ declare global {
   const chalk: typeof _chalk;
   const execa: typeof _execa.execa;
   const execaSync: typeof _execa.execaSync;
-  const fs: typeof _fs;
   const glob: typeof _glob;
-  const lodash: typeof _lodash;
-  const mustache: typeof _mustache;
-  const which: typeof _which;
+  const fs: typeof _fs_t;
+  const lodash: typeof _lodash_t;
+  const which: typeof _which_t;
 }

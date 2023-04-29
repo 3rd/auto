@@ -25,9 +25,9 @@ export const number = async (message: string, initialValue?: number) => {
     type: "numeral",
     name: "value",
     message,
-    initial: initialValue,
+    initial: initialValue === 0 ? undefined : initialValue,
   });
-  return value;
+  return value ?? 0;
 };
 
 export default {
