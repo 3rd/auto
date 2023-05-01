@@ -1,8 +1,0 @@
-export type __name__Props {
-}
-
-export const __name__ = (props: __name__Props) => {
-  return (
-    <div>__name__< /div>
-  );
-};
