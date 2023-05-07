@@ -2,6 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": [],
-    "typeRoots": ["/home/rabbit/brain/core/auto/dist/"]
+    "typeRoots": ["/home/rabbit/brain/core/auto/dist/"],
+    "jsx": "react-jsx"
   }
 }
