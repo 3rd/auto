@@ -11,7 +11,7 @@
     "name": "Andrei Neculaesei",
     "email": "3rd@users.noreply.github.com"
   },
-  "license": "GPL-2.0",
+  "license": "MIT",
   "type": "module",
   "files": [
     "dist"
