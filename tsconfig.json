@@ -8,14 +8,9 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "strict": true,
-    "lib": [
-      "ESNext"
-    ],
-    "types": [
-      "node"
-    ]
+    "lib": ["ESNext"],
+    "types": ["node"],
+    "skipLibCheck": true
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["./src"]
 }

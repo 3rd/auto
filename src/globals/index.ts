@@ -8,6 +8,7 @@ import * as _which_t from "which";
 import _fs from "fs-extra";
 import _lodash from "lodash";
 import _which from "which";
+import _fetch from "node-fetch";
 
 import * as types from "../types";
 import _prompt from "../utils/prompt";
@@ -31,6 +32,7 @@ Object.assign(global, {
   glob: _glob,
   lodash: _lodash,
   which: _which,
+  fetch: _fetch,
 });
 
 // accessors
@@ -60,4 +62,5 @@ declare global {
   const fs: typeof _fs_t;
   const lodash: typeof _lodash_t;
   const which: typeof _which_t;
+  const fetch: typeof _fetch;
 }
