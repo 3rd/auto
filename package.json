@@ -1,9 +1,10 @@
 {
-  "name": "auto",
+  "name": "@andrei.fyi/auto",
   "version": "0.0.1",
   "repository": "https://github.com/3rd/auto",
-  "description": "Auto-something-something.",
+  "description": "Powerful TypeScript-based automation tool",
   "keywords": [
+    "typescript",
     "cli",
     "automation"
   ],
@@ -31,9 +32,11 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn run tsc && yarn run test",
     "dev": "pkgroll --watch",
     "build": "pkgroll --target=node16",
-    "test": "echo everythingisfinepleasecontinue",
+    "test": "echo wip",
     "tsc": "tsc"
   },
   "devDependencies": {
