@@ -1,14 +1,14 @@
-import { ComponentStory } from "@storybook/react";
-import { __name__, __name__Props } from "./__name__";
+import type { StoryObj, Meta } from "@storybook/react";
+import { __name__ } from "./__name__";
 
-export default {
+const meta: Meta<typeof __name__> = {
   title: "__name__",
   component: __name__,
 };
+export default meta;
 
-const Template: ComponentStory<typeof __name__> = (props: __name__Props) => {
-  return <__name__ {...props}/>;
+type Story = StoryObj<typeof __name__>;
+
+export const Default: Story = {
+  args: {},
 };
-
-export const Default = Template.bind({});
-Default.args = {};
