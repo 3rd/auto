@@ -19,6 +19,9 @@
   ],
   "main": "./dist/main.cjs",
   "exports": {
+    "./loader": {
+      "import": "./dist/loader.mjs"
+    },
     "./globals": {
       "require": "./dist/globals/index.cjs",
       "import": "./dist/globals/index.mjs",
@@ -32,12 +35,13 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
+    "dev": "pkgroll --watch",
+    "build": "yarn run clean && pkgroll --target=node16",
+    "test": "echo wip",
+    "tsc": "tsc",
     "prepare": "yarn run build",
     "prepublishOnly": "yarn run tsc && yarn run test",
-    "dev": "pkgroll --watch",
-    "build": "pkgroll --target=node16",
-    "test": "echo wip",
-    "tsc": "tsc"
+    "clean": "rm -rf dist"
   },
   "devDependencies": {
     "@types/node": "^20.1.0",

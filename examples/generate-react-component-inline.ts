@@ -1,4 +1,4 @@
-import "auto/globals";
+import "auto";
 
 const files = {
   index: 'export * from "./__name__";',

@@ -1,8 +1,17 @@
+/* Don't worry, this file is auto-generated. */
 {
   "compilerOptions": {
     "strict": true,
     "lib": [],
-    "typeRoots": ["/home/rabbit/brain/core/auto/dist/"],
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "typeRoots": [
+      "/home/rabbit/brain/core/auto/dist/globals"
+    ],
+    "paths": {
+      "auto": [
+        "/home/rabbit/brain/core/auto/dist/globals"
+      ]
+    }
   }
 }

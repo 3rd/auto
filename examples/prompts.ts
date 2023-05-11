@@ -1,4 +1,4 @@
-import "auto/globals";
+import "auto";
 
 export default auto({
   id: "prompts",

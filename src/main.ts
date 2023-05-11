@@ -67,6 +67,7 @@ const main = async () => {
   if (isParentProcess) {
     const argv = process.argv.slice(1);
     const esmLoaderPath = require.resolve("tsx");
+    const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader.mjs");
 
     // auto-setup repo/tsconfig.json
     for (const repoPath of repositoryPaths) {
@@ -81,7 +82,7 @@ const main = async () => {
 
         const ok = await prompt.confirm("Do you want me to set it up?");
         if (ok) {
-          const pathToDist = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");
+          const pathToDistGlobals = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist", "globals");
           await fs.writeFile(
             tsconfigPath,
             JSON.stringify(
@@ -89,8 +90,12 @@ const main = async () => {
                 compilerOptions: {
                   strict: true,
                   lib: [],
-                  typeRoots: [pathToDist],
                   jsx: "react-jsx",
+                  baseUrl: ".",
+                  typeRoots: [pathToDistGlobals],
+                  paths: {
+                    auto: [pathToDistGlobals],
+                  },
                 },
               },
               null,
@@ -108,7 +113,7 @@ const main = async () => {
       }
     }
 
-    const childProcess = spawn(process.execPath, ["--loader", esmLoaderPath, ...argv], {
+    const childProcess = spawn(process.execPath, ["--loader", esmLoaderPath, "--loader", autoLoaderPath, ...argv], {
       stdio: ["inherit", "inherit", "inherit", "ipc"],
       env: {
         ...process.env,
@@ -128,18 +133,19 @@ const main = async () => {
     files.map(async (file) => {
       try {
         return { file, module: await import(file.path) };
-      } catch {
+      } catch (error) {
         // console.log(chalk.red("Skipped:"), "Loading error:", chalk.magenta(file.path));
+        // console.error(error);
         return null;
       }
     })
   );
-  const modules = importedModules.filter(Boolean) as { file: typeof files[0]; module: { default: AutoReturnType } }[];
+  const modules = importedModules.filter(Boolean) as { file: typeof files[0]; module: { default?: AutoReturnType } }[];
 
   for (const { file, module } of modules) {
     if (!file || !module) continue;
 
-    if (module.default[autoSymbol]) {
+    if (module.default?.[autoSymbol]) {
       const { repositoryPath, path } = file;
       const isLocal = repositoryPath === localRepositoryPath;
       const template: AutoReturnType = { ...module.default, path, isLocal };
@@ -166,7 +172,7 @@ const main = async () => {
   const templates = Object.values(templateMap);
 
   const cli = cleye({
-    name: packageJson.name,
+    name: "auto",
     version: packageJson.version,
     commands: [
       createListCommand(project, templates),
