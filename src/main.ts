@@ -23,7 +23,7 @@ const main = async () => {
 
   // main repo
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "examples");
-  const configRepositoryPath = envPaths(packageJson.name, { suffix: "" }).config;
+  const configRepositoryPath = envPaths("auto", { suffix: "" }).config;
   const envRepositoryPath = process.env.AUTO_REPO;
   let mainRepositoryPath = fs.existsSync(developmentRepositoryPath)
     ? developmentRepositoryPath
@@ -49,6 +49,7 @@ const main = async () => {
   if (repositoryPaths.length === 0) {
     console.error(chalk.red("Error:"), "Cannot resolve repository directory, to fix this either:");
     console.log(`- Create a directory at: ${chalk.magenta(tildify(configRepositoryPath))}`);
+    console.log(`- Create a directory at: ${chalk.magenta("./auto")} or ${chalk.magenta("./.auto")}`);
     console.log(`- Or set the ${chalk.cyan("$AUTO_REPO")} environment variable.`);
 
     // auto-create main repo (~/.config/auto)
