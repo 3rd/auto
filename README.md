@@ -1,6 +1,6 @@
-# ![Auto](logo.svg)
+# ![Auto](https://github.com/3rd/auto/assets/59587503/888805f5-1927-4814-b986-d8d7b16613cb)
 
-<img src="./code.svg" align="right" width="280"/>
+<img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="280"/>
 
 ![NPM version](https://badge.fury.io/js/@andrei.fyi%2Fauto.svg)
 ![Last commit](https://img.shields.io/github/last-commit/3rd/auto)
