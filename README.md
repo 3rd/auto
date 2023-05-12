@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 
-<ins>**Auto**</ins> is a <ins>TypeScript-powered command-line automation tool</ins>.
+**<ins>Auto</ins>** is a TypeScript-powered command-line automation tool.
 \
 Write and execute *global* and *project-local* scripts.
 
