@@ -1,6 +1,6 @@
 {
   "name": "@andrei.fyi/auto",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": "https://github.com/3rd/auto",
   "description": "Powerful TypeScript-based automation tool",
   "keywords": [
