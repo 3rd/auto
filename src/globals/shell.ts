@@ -2,7 +2,7 @@ export default {
   cwd() {
     return process.cwd();
   },
-  cd(path: string | TemplateStringsArray) {
+  cd(path: TemplateStringsArray | string) {
     process.chdir(typeof path === "string" ? path : path[0]);
     return process.cwd();
   },

@@ -81,16 +81,16 @@ class Project {
     return resolve(this.rootDirectory, ...paths);
   }
 
-  hasPath(path: string) {
-    return fs.existsSync(this.resolvePath(path));
+  hasPath(...paths: string[]) {
+    return fs.existsSync(this.resolvePath(...paths));
   }
 
-  hasFile(path: string) {
-    return this.hasPath(path) && fs.lstatSync(this.resolvePath(path)).isFile();
+  hasFile(...paths: string[]) {
+    return this.hasPath(...paths) && fs.lstatSync(this.resolvePath(...paths)).isFile();
   }
 
-  readFile(path: string) {
-    return fs.readFileSync(this.resolvePath(path), "utf8");
+  readFile(...path: string[]) {
+    return fs.readFileSync(this.resolvePath(...path), "utf8");
   }
 
   writeFile(path: string, content: string) {

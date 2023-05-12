@@ -8,10 +8,10 @@ import Project from "../Project";
 import { AutoReturnType } from "../types";
 import packageJson from "../../package.json";
 
-export const createReplCommand = (project: Project, templates: AutoReturnType[]) =>
+export const createReplCommand = (project: Project, scripts: AutoReturnType[]) =>
   command({ name: "repl" }, async () => {
     (global as any).project = project;
-    (global as any).templates = templates;
+    (global as any).scripts = scripts;
     const r = repl.start({
       prompt: chalk.greenBright("> "),
       useGlobal: true,

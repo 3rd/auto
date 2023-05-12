@@ -10,7 +10,7 @@ export type ParamValueType<T extends ParamType> = T extends "boolean"
   ? string
   : never;
 
-export type TemplateParam<T extends ParamType, P extends Record<string, ParamType>> = {
+export type ScriptParam<T extends ParamType, P extends Record<string, ParamType>> = {
   title: string;
   type: T;
   defaultValue?:
@@ -20,10 +20,10 @@ export type TemplateParam<T extends ParamType, P extends Record<string, ParamTyp
 };
 
 export type Params<T extends Record<string, ParamType> = Record<string, ParamType>> = {
-  [K in keyof T]: TemplateParam<T[K], T> & { type: T[K] };
+  [K in keyof T]: ScriptParam<T[K], T> & { type: T[K] };
 };
 
-export type Template<P extends Record<string, ParamType>> = {
+export type Script<P extends Record<string, ParamType>> = {
   id: string;
   title?: string;
   params?: Params<P>;
@@ -31,11 +31,11 @@ export type Template<P extends Record<string, ParamType>> = {
   run: (args: {
     cwd: string;
     project: Project;
-    self: Template<P>;
+    self: Script<P>;
     params: { [K in keyof P]: ParamValueType<P[K]> };
     files: { path: string; content: string }[];
     fileMap: Record<string, string>;
-    t: (text: string, params?: Record<string, string | number | boolean>) => string;
+    t: (text: string, params?: Record<string, boolean | number | string>) => string;
   }) => void;
 };
 
@@ -50,22 +50,22 @@ const getDefaultParamValue = <T extends ParamType>(type: T) => {
 
 export const autoSymbol = Symbol.for("auto");
 
-export const auto = <P extends Record<string, ParamType>>(template: Template<P>) => {
+export const auto = <P extends Record<string, ParamType>>(script: Script<P>) => {
   return {
     [autoSymbol]: true,
-    ...template,
+    ...script,
     isLocal: false,
     path: "",
     bootstrapParams: () => {
-      if (!template.params) return {};
+      if (!script.params) return {};
       return Object.fromEntries(
-        Object.entries(template.params).map(([key, param]) => {
+        Object.entries(script.params).map(([key, param]) => {
           let value = getDefaultParamValue(param.type);
           if (typeof param.defaultValue !== "function" && param.defaultValue !== undefined) {
             value = param.defaultValue;
           }
           return [key, { ...param, value }];
-        }) as [keyof P, TemplateParam<P[keyof P], P> & { value: ParamValueType<P[keyof P]> }][]
+        }) as [keyof P, ScriptParam<P[keyof P], P> & { value: ParamValueType<P[keyof P]> }][]
       );
     },
   };

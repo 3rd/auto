@@ -125,7 +125,7 @@ const main = async () => {
     return;
   }
 
-  const templateMap: Record<string, AutoReturnType> = {};
+  const scriptMap: Record<string, AutoReturnType> = {};
 
   const files = repositoryPaths.flatMap((repositoryPath) =>
     globSync(`${repositoryPath}/**/*.ts`).map((path) => ({ repositoryPath, path }))
@@ -134,7 +134,7 @@ const main = async () => {
     files.map(async (file) => {
       try {
         return { file, module: await import(file.path) };
-      } catch (error) {
+      } catch {
         // console.log(chalk.red("Skipped:"), "Loading error:", chalk.magenta(file.path));
         // console.error(error);
         return null;
@@ -149,20 +149,20 @@ const main = async () => {
     if (module.default?.[autoSymbol]) {
       const { repositoryPath, path } = file;
       const isLocal = repositoryPath === localRepositoryPath;
-      const template: AutoReturnType = { ...module.default, path, isLocal };
+      const script: AutoReturnType = { ...module.default, path, isLocal };
 
-      const previousTemplate = templateMap[template.id];
+      const previousScript = scriptMap[script.id];
       if (
-        (previousTemplate?.isLocal && template.isLocal) ||
-        (previousTemplate && !previousTemplate.isLocal && !template.isLocal)
+        (previousScript?.isLocal && script.isLocal) ||
+        (previousScript && !previousScript.isLocal && !script.isLocal)
       ) {
-        console.error(chalk.red("Fatal:"), "Duplicate template:", chalk.magenta(template.id));
-        console.log(chalk.grey("-"), "First found at:", chalk.magenta(tildify(previousTemplate.path)));
+        console.error(chalk.red("Fatal:"), "Duplicate script:", chalk.magenta(script.id));
+        console.log(chalk.grey("-"), "First found at:", chalk.magenta(tildify(previousScript.path)));
         console.log(chalk.grey("-"), "Second found at:", chalk.magenta(tildify(path)));
         process.exit(1);
       }
 
-      templateMap[template.id] = template;
+      scriptMap[script.id] = script;
       // console.log(chalk.green("Success:"), "Loaded:", chalk.magenta(path));
     } else {
       // console.log(chalk.yellow("Skipped:"), "Not a module:", chalk.magenta(file.path));
@@ -170,15 +170,15 @@ const main = async () => {
   }
 
   const project = Project.resolveFromDirectory(process.cwd());
-  const templates = Object.values(templateMap);
+  const scripts = Object.values(scriptMap);
 
   const cli = cleye({
     name: "auto",
     version: packageJson.version,
     commands: [
-      createListCommand(project, templates),
-      createRunCommand(project, templates),
-      createReplCommand(project, templates),
+      createListCommand(project, scripts),
+      createRunCommand(project, scripts),
+      createReplCommand(project, scripts),
     ],
   });
   if (!cli.command) cli.showHelp();

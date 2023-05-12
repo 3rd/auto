@@ -63,7 +63,7 @@
     "fs-extra": "^11.1.1",
     "glob": "^10.2.2",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.1",
+    "node-fetch-native": "^1.1.1",
     "tsx": "^3.12.6",
     "which": "^3.0.0"
   }

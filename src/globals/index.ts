@@ -8,7 +8,7 @@ import * as _which_t from "which";
 import _fs from "fs-extra";
 import _lodash from "lodash";
 import _which from "which";
-import _fetch from "node-fetch";
+import _fetch from "node-fetch-native";
 
 import * as types from "../types";
 import _prompt from "../utils/prompt";
@@ -48,7 +48,6 @@ Object.defineProperty(globalThis, "pwd", {
 declare global {
   const auto: types.AutoType;
   const cd: typeof shell.cd;
-  const cwd: typeof shell.cwd;
   const pwd: string;
   // @ts-ignore damn you tsserver
   const prompt: typeof _prompt;
