@@ -68,7 +68,7 @@ const main = async () => {
   if (isParentProcess) {
     const argv = process.argv.slice(1);
     const esmLoaderPath = require.resolve("tsx");
-    const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader.mjs");
+    const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader.cjs");
 
     // auto-setup repo/tsconfig.json
     for (const repoPath of repositoryPaths) {
@@ -114,7 +114,7 @@ const main = async () => {
       }
     }
 
-    const childProcess = spawn(process.execPath, ["--loader", esmLoaderPath, "--loader", autoLoaderPath, ...argv], {
+    const childProcess = spawn(process.execPath, ["-r", autoLoaderPath, "--loader", esmLoaderPath, ...argv], {
       stdio: ["inherit", "inherit", "inherit", "ipc"],
       env: {
         ...process.env,
@@ -141,7 +141,10 @@ const main = async () => {
       }
     })
   );
-  const modules = importedModules.filter(Boolean) as { file: typeof files[0]; module: { default?: AutoReturnType } }[];
+  const modules = importedModules.filter(Boolean) as {
+    file: (typeof files)[0];
+    module: { default?: AutoReturnType };
+  }[];
 
   for (const { file, module } of modules) {
     if (!file || !module) continue;

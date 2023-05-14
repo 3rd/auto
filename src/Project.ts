@@ -58,8 +58,9 @@ class Project {
     if (this.isJavaScriptProject) {
       const packageJson = this.readJSON("package.json");
       for (const [name, version] of Object.entries({
-        ...packageJson.dependencies,
-        ...packageJson.devDependencies,
+        ...(packageJson.dependencies ?? []),
+        ...(packageJson.devDependencies ?? []),
+        ...(packageJson.peerDependencies ?? []),
       })) {
         dependencies.push({ name, version: typeof version === "string" ? version : undefined });
       }
