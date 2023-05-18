@@ -68,7 +68,8 @@ const main = async () => {
   if (isParentProcess) {
     const argv = process.argv.slice(1);
     const esmLoaderPath = require.resolve("tsx");
-    const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader.cjs");
+    const cjsAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-cjs.cjs");
+    const esmAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-esm.mjs");
 
     // auto-setup repo/tsconfig.json
     for (const repoPath of repositoryPaths) {
@@ -114,13 +115,17 @@ const main = async () => {
       }
     }
 
-    const childProcess = spawn(process.execPath, ["-r", autoLoaderPath, "--loader", esmLoaderPath, ...argv], {
-      stdio: ["inherit", "inherit", "inherit", "ipc"],
-      env: {
-        ...process.env,
-        NODE_OPTIONS: ["--experimental-specifier-resolution=node", "--no-warnings=ExperimentalWarning"].join(" "),
-      },
-    });
+    const childProcess = spawn(
+      process.execPath,
+      ["-r", cjsAutoLoaderPath, "--loader", esmLoaderPath, "--loader", esmAutoLoaderPath, ...argv],
+      {
+        stdio: ["inherit", "inherit", "inherit", "ipc"],
+        env: {
+          ...process.env,
+          NODE_OPTIONS: ["--experimental-specifier-resolution=node", "--no-warnings=ExperimentalWarning"].join(" "),
+        },
+      }
+    );
     childProcess.on("close", (code) => process.exit(code!));
     return;
   }

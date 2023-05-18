@@ -14,12 +14,12 @@ type ResolveFilenameSignature = (
 ) => string;
 
 const Module = _Module as unknown as ModuleType;
-const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "globals/index.mjs");
+const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "globals/index.cjs");
 
 const resolveFilename = Module._resolveFilename;
 Module._resolveFilename = function (request, parent, isMain, options) {
   if (request === "auto") {
-    return resolveFilename.call(this, autoLoaderPath, parent, isMain, options);
+    return autoLoaderPath;
   }
   return resolveFilename.call(this, request, parent, isMain, options);
 };

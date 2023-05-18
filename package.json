@@ -1,6 +1,6 @@
 {
   "name": "@andrei.fyi/auto",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "repository": "https://github.com/3rd/auto",
   "description": "Powerful TypeScript-based automation tool",
   "keywords": [
@@ -19,8 +19,11 @@
   ],
   "main": "./dist/main.cjs",
   "exports": {
-    "./loader": {
-      "import": "./dist/loader.mjs"
+    "./loader-esm": {
+      "import": "./dist/loader-esm.mjs"
+    },
+    "./loader-cjs": {
+      "require": "./dist/loader-cjs.cjs"
     },
     "./globals": {
       "require": "./dist/globals/index.cjs",
