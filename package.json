@@ -40,8 +40,8 @@
   "scripts": {
     "dev": "pkgroll --watch",
     "build": "yarn run clean && pkgroll --target=node16",
-    "test": "ava",
-    "test:watch": "ava --watch",
+    "test": "NODE_OPTIONS='--loader=tsx --no-warnings' ava",
+    "test:watch": "NODE_OPTIONS='--loader=tsx --no-warnings' ava --watch",
     "tsc": "tsc",
     "prepare": "yarn run build",
     "prepublishOnly": "yarn run tsc && yarn run test",
@@ -50,11 +50,7 @@
   "ava": {
     "extensions": {
       "ts": "module"
-    },
-    "nodeArguments": [
-      "--loader=tsx",
-      "--no-warnings=ExperimentalWarning"
-    ]
+    }
   },
   "devDependencies": {
     "@types/node": "^20.1.0",
