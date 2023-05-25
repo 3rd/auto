@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-await-expression-member */
 import { resolve } from "node:path";
 import fs from "fs-extra";
 import { setupTSConfig } from "../setup";
@@ -33,11 +34,25 @@ assert.deepEqual(
 );
 
 // lists global scripts
-const { stdout } = await $`auto ls`;
-const expectedGlobalScriptsOutput = `
+let { stdout } = await $`auto ls`;
+let expected = `
 Info: Using main repository: ~/.config/auto
 - <shell> Shell-like usage (main)
 - <prompts> Auto prompts (main)
 - <fetch> Fetch (main)
 `;
-assert.ok(stdout.trim() === expectedGlobalScriptsOutput.trim(), "Global script listing is invalid.");
+assert.equal(stdout.trim(), expected.trim(), "Global script listing is invalid.");
+
+// example: shell
+stdout = (await $`auto run shell`).stdout;
+expected = `
+Info: Using main repository: ~/.config/auto
+Info: Running ~/.config/auto/shell.ts
+  "license": "MIT",
+"Hello, root"
+"1"
+"2"
+[ '"1"', '"2"' ]
+0
+`;
+assert.equal(stdout.trim(), expected.trim(), "Example shell script failed.");
