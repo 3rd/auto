@@ -1,29 +1,29 @@
 /* eslint-disable no-await-in-loop */
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { cli as cleye } from "cleye";
 import chalk from "chalk";
-import envPaths from "env-paths";
 import fs from "fs-extra";
 import spawn from "cross-spawn";
 import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
 
 import packageJson from "../package.json";
-import { tildify } from "./utils/path";
 import Project from "./Project";
+import { getGlobalRepositoryPath, tildify } from "./utils/path";
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
 import { autoSymbol, AutoReturnType } from "./types";
+import { setupTSConfig } from "./setup";
 
 const main = async () => {
   const isParentProcess = typeof process.send !== "function";
 
   // main repo
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "examples");
-  const configRepositoryPath = envPaths("auto", { suffix: "" }).config;
+  const configRepositoryPath = getGlobalRepositoryPath();
   const envRepositoryPath = process.env.AUTO_REPO;
   let mainRepositoryPath = fs.existsSync(developmentRepositoryPath)
     ? developmentRepositoryPath
@@ -73,8 +73,8 @@ const main = async () => {
 
     // auto-setup repo/tsconfig.json
     for (const repoPath of repositoryPaths) {
-      const tsconfigPath = resolve(repoPath, "tsconfig.json");
-      if (!fs.existsSync(tsconfigPath)) {
+      const tsConfigPath = resolve(repoPath, "tsconfig.json");
+      if (!fs.existsSync(tsConfigPath)) {
         console.log(
           chalk.yellow.bold("Warning:"),
           "Cannot find",
@@ -84,32 +84,13 @@ const main = async () => {
 
         const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
         if (ok) {
-          const pathToDistGlobals = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist", "globals");
-          await fs.writeFile(
-            tsconfigPath,
-            JSON.stringify(
-              {
-                compilerOptions: {
-                  strict: true,
-                  lib: [],
-                  jsx: "react-jsx",
-                  baseUrl: ".",
-                  typeRoots: [pathToDistGlobals],
-                  paths: {
-                    auto: [pathToDistGlobals],
-                  },
-                },
-              },
-              null,
-              2
-            )
-          );
+          setupTSConfig(tsConfigPath);
           console.log(
             chalk.green("Success:"),
             "Wrote",
             chalk.cyan("tsconfig.json"),
             "to",
-            chalk.magenta(tildify(tsconfigPath))
+            chalk.magenta(tildify(tsConfigPath))
           );
         }
       }
