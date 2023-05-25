@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/3rd/auto/compare/v1.1.0...v1.1.1) (2023-05-25)
+
+
+### Bug Fixes
+
+* wait for tsconfig write ([35e8297](https://github.com/3rd/auto/commit/35e82973c4bff49a60a72d404a516334d05d22ee))
+
 # [1.1.0](https://github.com/3rd/auto/compare/v1.0.0...v1.1.0) (2023-05-25)
 
 
