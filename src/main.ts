@@ -8,9 +8,9 @@ import envPaths from "env-paths";
 import fs from "fs-extra";
 import spawn from "cross-spawn";
 import { globSync } from "glob";
+import * as inquirer from "@inquirer/prompts";
 
 import packageJson from "../package.json";
-import * as prompt from "./utils/prompt";
 import { tildify } from "./utils/path";
 import Project from "./Project";
 import { createListCommand } from "./commands/list";
@@ -53,9 +53,9 @@ const main = async () => {
     console.log(`- Or set the ${chalk.cyan("$AUTO_REPO")} environment variable.`);
 
     // auto-create main repo (~/.config/auto)
-    const ok = await prompt.confirm(
-      `Do you want me to create a directory at ${chalk.magenta(tildify(configRepositoryPath))}?`
-    );
+    const ok = await inquirer.confirm({
+      message: `Do you want me to create a directory at ${chalk.magenta(tildify(configRepositoryPath))}?`,
+    });
     if (ok) {
       await fs.mkdirp(configRepositoryPath);
       console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(tildify(configRepositoryPath)));
@@ -82,7 +82,7 @@ const main = async () => {
           `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("tsconfig.json")}`
         );
 
-        const ok = await prompt.confirm("Do you want me to set it up?");
+        const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
         if (ok) {
           const pathToDistGlobals = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist", "globals");
           await fs.writeFile(

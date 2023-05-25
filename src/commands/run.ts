@@ -6,6 +6,7 @@ import { AutoReturnType } from "../types";
 import { tildify } from "../utils/path";
 import { dirname, resolve } from "node:path";
 import { globSync } from "glob";
+import * as inquirer from "@inquirer/prompts";
 
 export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
   command({ name: "run", alias: "r", parameters: ["<generator id>"] }, async (argv) => {
@@ -42,15 +43,25 @@ export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       // eslint-disable-next-line default-case
       switch (param.type) {
         case "boolean": {
-          param.value = await prompt.confirm(param.title, param.value as boolean);
+          param.value = await inquirer.confirm({
+            message: param.title,
+            default: param.value as boolean,
+          });
           break;
         }
         case "number": {
-          param.value = await prompt.number(param.title, param.value as number);
+          const stringValue = await inquirer.input({
+            message: param.title,
+            default: param.value.toString(),
+          });
+          param.value = Number(stringValue);
           break;
         }
         case "string": {
-          param.value = await prompt.string(param.title, param.value as string);
+          param.value = await inquirer.input({
+            message: param.title,
+            default: param.value as string,
+          });
           if (param.required && param.value === "") {
             console.error(chalk.red(`Error: Parameter "%s" is required.`), param.title);
             process.exit(1);

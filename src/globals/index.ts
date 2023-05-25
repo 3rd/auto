@@ -5,13 +5,13 @@ import * as _glob from "glob";
 import * as _fs_t from "fs-extra";
 import * as _lodash_t from "lodash";
 import * as _which_t from "which";
+import * as _inquirer from "@inquirer/prompts";
 import _fs from "fs-extra";
 import _lodash from "lodash";
 import _which from "which";
 import _fetch from "node-fetch-native";
 
 import * as types from "../types";
-import _prompt from "../utils/prompt";
 import _sleep from "./sleep";
 import shell from "./shell";
 
@@ -20,12 +20,13 @@ Object.assign(global, {
   auto: types.auto,
   // internal utils
   ...shell,
-  prompt: _prompt,
   sleep: _sleep,
   // external utils
   $$: _execa.$({ verbose: true }),
   $: _execa.$,
   chalk: _chalk,
+  prompt: _inquirer,
+  inquirer: _inquirer,
   execa: _execa.execa,
   execaSync: _execa.execaSync,
   fs: _fs,
@@ -50,11 +51,12 @@ declare global {
   const cd: typeof shell.cd;
   const pwd: string;
   // @ts-ignore damn you tsserver
-  const prompt: typeof _prompt;
   const sleep: typeof _sleep;
   const $$: typeof _execa.$;
   const $: typeof _execa.$;
   const chalk: typeof _chalk;
+  const prompt: typeof _inquirer;
+  const inquirer: typeof _inquirer;
   const execa: typeof _execa.execa;
   const execaSync: typeof _execa.execaSync;
   const glob: typeof _glob;

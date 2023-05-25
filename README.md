@@ -202,12 +202,9 @@ Auto injects many helpers into the [global scope](src/globals/index.ts).
 - **`glob`** - [glob](https://github.com/isaacs/node-glob)
 - **`lodash`** - [lodash](https://github.com/lodash/lodash)
 - **`which`** - [which](https://github.com/npm/node-which)
+- **`inquirer`** - [@inquirer/prompts](https://github.com/SBoudrias/Inquirer.js/), also aliased to `prompt`
 
 **Internal helpers:**
-- **`prompt`** - utilities for getting user input
-    - **`prompt.confirm(message: string, initialValue?: boolean): Promise<boolean>`**
-    - **`prompt.string(message: string, initialValue?: string): Promise<string>`**
-    - **`prompt.number(message: string, initialValue?: number): Promise<number>`**
 - **`sleep(miliseconds: number): Promise<void>`**
 - shell-like helpers: **`cwd()`**, **`cd()`**, **`pwd`**
 
