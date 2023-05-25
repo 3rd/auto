@@ -17,7 +17,7 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/main.cjs",
+  "main": "./dist/main.mjs",
   "exports": {
     "./loader-esm": {
       "import": "./dist/loader-esm.mjs"
@@ -26,7 +26,6 @@
       "require": "./dist/loader-cjs.cjs"
     },
     "./globals": {
-      "require": "./dist/globals/index.cjs",
       "import": "./dist/globals/index.mjs",
       "types": "./dist/globals/index.d.ts"
     }
