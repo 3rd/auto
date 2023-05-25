@@ -5,25 +5,23 @@ name: Test
 
 on:
   push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+    branches: ["master", "beta"]
 
 jobs:
-  build:
+  release:
+    name: Release
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 19.x, 20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          node-version: 18.x
       - run: yarn install
+      - run: yarn add -D @semantic-release/changelog @semantic-release/git
+      - run: yarn build
       - run: yarn test
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release

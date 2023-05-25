@@ -1,6 +1,6 @@
 {
   "name": "@andrei.fyi/auto",
-  "version": "0.0.8",
+  "version": "0.0.0-semantic-release",
   "repository": "https://github.com/3rd/auto",
   "description": "Powerful TypeScript-based automation tool",
   "keywords": [
@@ -35,7 +35,7 @@
     "auto": "./dist/main.js"
   },
   "engines": {
-    "node": ">= 16.0.0"
+    "node": ">= 18.0.0"
   },
   "scripts": {
     "dev": "pkgroll --watch",
@@ -43,8 +43,8 @@
     "test": "NODE_OPTIONS='--loader=tsx --no-warnings' ava",
     "test:watch": "NODE_OPTIONS='--loader=tsx --no-warnings' ava --watch",
     "tsc": "tsc",
-    "prepare": "yarn run build",
-    "prepublishOnly": "yarn run tsc && yarn run test",
+    "prepare": "husky install",
+    "prepublishOnly": "yarn run build && yarn run tsc && yarn run test",
     "clean": "rm -rf dist"
   },
   "ava": {
@@ -53,8 +53,11 @@
     }
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
     "@types/node": "^20.1.0",
     "ava": "^5.2.0",
+    "husky": "^8.0.3",
     "pkgroll": "^1.9.0",
     "semantic-release": "^21.0.2",
     "typescript": "^5.0.3"
