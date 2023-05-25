@@ -84,7 +84,7 @@ const main = async () => {
 
         const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
         if (ok) {
-          setupTSConfig(tsConfigPath);
+          await setupTSConfig(tsConfigPath);
           console.log(
             chalk.green("Success:"),
             "Wrote",
