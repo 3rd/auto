@@ -1,4 +1,4 @@
-/* Don't worry, this file is auto-generated. */
+/* This file should be auto-generated, don't copy-paste this. */
 {
   "compilerOptions": {
     "strict": true,
@@ -6,11 +6,11 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "typeRoots": [
-      "/home/rabbit/brain/core/auto/dist/globals"
+      "/home/user/.npm/.../globals" /* auto-generated */
     ],
     "paths": {
       "auto": [
-        "/home/rabbit/brain/core/auto/dist/globals"
+      "/home/user/.npm/.../globals" /* auto-generated */
       ]
     }
   }
