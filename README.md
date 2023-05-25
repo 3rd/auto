@@ -1,9 +1,8 @@
 # ![Logo](https://github.com/3rd/auto/assets/59587503/301898ff-8e00-4d53-b250-d710d380c42e) Auto
 
-![NPM version](https://badge.fury.io/js/@andrei.fyi%2Fauto.svg)
-![Last commit](https://img.shields.io/github/last-commit/3rd/auto)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
+[![NPM version](https://badgers.space/npm/version/@andrei.fyi/auto)](https://www.npmjs.com/package/@andrei.fyi/auto)
+[![License](https://badgers.space/github/license/3rd/auto)](https://github.com/3rd/auto/blob/master/LICENSE)
+![Contributions welcome](https://honey.badgers.space/badge/contributions/welcome/blue)
 <img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="280"/>
 
 **<ins>Auto</ins>** is a **TypeScript-powered command-line automation tool**.
