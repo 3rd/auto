@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/3rd/auto/compare/v1.0.0...v1.1.0) (2023-05-25)
+
+
+### Bug Fixes
+
+* fix broken enquirer import ([531d00e](https://github.com/3rd/auto/commit/531d00e0cb6fc64c88c4ef6c96d9667e30cc1df6))
+* switch to ESM ([55c8309](https://github.com/3rd/auto/commit/55c83091d6659ca592fa6a8471d2c30077feab44))
+
+
+### Features
+
+* replace enquirer with inquirer ([5185db2](https://github.com/3rd/auto/commit/5185db250556a54de6ed2e474c5e1d9c4563c6bc))
+
 # 1.0.0 (2023-05-25)
 
 
