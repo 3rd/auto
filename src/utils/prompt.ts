@@ -1,7 +1,7 @@
-import { prompt, Prompt } from "enquirer";
+import enquirer from "enquirer";
 
 export const confirm = async (message: string, initialValue?: boolean) => {
-  const { value } = await prompt<{ value: boolean }>({
+  const { value } = await enquirer.prompt<{ value: boolean }>({
     type: "confirm",
     name: "value",
     message,
@@ -11,7 +11,7 @@ export const confirm = async (message: string, initialValue?: boolean) => {
 };
 
 export const string = async (message: string, initialValue?: string) => {
-  const { value } = await prompt<{ value: string }>({
+  const { value } = await enquirer.prompt<{ value: string }>({
     type: "input",
     name: "value",
     message,
@@ -21,7 +21,7 @@ export const string = async (message: string, initialValue?: string) => {
 };
 
 export const number = async (message: string, initialValue?: number) => {
-  const { value } = await prompt<{ value: number }>({
+  const { value } = await enquirer.prompt<{ value: number }>({
     type: "numeral",
     name: "value",
     message,
