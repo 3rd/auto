@@ -109,7 +109,7 @@ If there are two scripts that share the same `id`, and the same locality, it pan
 
 ## Auto scripts
 
-> Check out the [examples](examples) library, it makes it easier to get how writing scripts works.
+> Check out the [examples](examples) library for reference.
 
 Auto scripts are TypeScript modules that have their `default` export the result of an `auto(...)` call.
 \
