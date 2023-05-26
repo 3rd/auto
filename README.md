@@ -3,11 +3,12 @@
 [![NPM version](https://badgers.space/npm/version/@andrei.fyi/auto)](https://www.npmjs.com/package/@andrei.fyi/auto)
 [![License](https://badgers.space/github/license/3rd/auto)](https://github.com/3rd/auto/blob/master/LICENSE)
 ![Contributions welcome](https://honey.badgers.space/badge/contributions/welcome/blue)
-<img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="280"/>
 
 **<ins>Auto</ins>** is a **TypeScript-powered command-line automation tool**.
 \
 Write and execute *global* and *project-local* scripts.
+
+<img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="30%"/>
 
 It's kind of like [zx](https://github.com/google/zx), but:
 - <ins>TypeScript-focused</ins>
