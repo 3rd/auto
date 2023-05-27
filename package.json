@@ -41,6 +41,7 @@
     "build": "yarn run clean && pkgroll --target=node16",
     "test": "NODE_OPTIONS='--loader=tsx --no-warnings' ava",
     "test:watch": "NODE_OPTIONS='--loader=tsx --no-warnings' ava --watch",
+    "e2e": "docker run --rm -it $(docker build -f src/e2e/Dockerfile -q .)",
     "tsc": "tsc",
     "prepare": "husky install",
     "prepublishOnly": "yarn run build && yarn run tsc && yarn run test",

@@ -2,12 +2,16 @@
 set -uf -o pipefail
 IFS=$'\n\t'
 
-cd /root/build || exit
-HUSKY=0 yarn --immutable
-npm install -g .
-
 cd /root/source || exit
 HUSKY=0 yarn --immutable
+yarn build
 
+mkdir /root/build
+npm pack --pack-destination /root/build
+
+cd /root/build || exit
+npm install -g andrei.fyi-auto-0.0.0-semantic-release.tgz
+
+cd /root/source || exit
 mkdir ~/.config
 npx tsx src/e2e

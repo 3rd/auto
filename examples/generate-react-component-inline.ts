@@ -43,10 +43,10 @@ export default auto({
   run: async ({ project, params, self, t }) => {
     console.log("Running:", self.id);
 
-    const componentDirectoryPath = await prompt.string(
-      "Target path:",
-      `${project.hasDirectory("src/components") ? "src/components" : ""}/${params.name}`
-    );
+    const componentDirectoryPath = await prompt.input({
+      message: "Target path:",
+      default: `${project.hasDirectory("src/components") ? "src/components" : ""}/${params.name}`,
+    });
 
     // component directory
     console.log("Creating directory:", componentDirectoryPath);

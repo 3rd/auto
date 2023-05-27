@@ -1,19 +1,37 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable unicorn/no-await-expression-member */
 import { resolve } from "node:path";
 import fs from "fs-extra";
+import assert from "node:assert";
 import { setupTSConfig } from "../setup";
 import { getGlobalRepositoryPath } from "../utils/path";
-import assert from "node:assert";
-import { $ } from "execa";
+import commandTests from "./commands";
+import * as exampleTests from "./examples";
+
+export type Test = {
+  name?: string;
+  run: (cwd: string) => Promise<{
+    stdout?: string;
+  } | void>;
+  project?: {
+    [path: string]: string;
+  };
+  prepare?: (cwd: string) => Promise<void>; // cwd is the mocked project cwd if present, or the current pwd
+  expected: {
+    stdout?: string;
+    files?: Record<string, string | ((v: string) => string)>;
+  };
+};
 
 // global setup
 const globalRepositoryPath = getGlobalRepositoryPath();
+console.log(`Setting up global repository at: ${globalRepositoryPath}`);
 await fs.mkdirp(globalRepositoryPath);
 await fs.copy("./examples", globalRepositoryPath);
 const tsConfigPath = resolve(globalRepositoryPath, "tsconfig.json");
 await setupTSConfig(tsConfigPath);
 
-// generates tsconfig
+// generate tsconfig
 assert(await fs.exists(tsConfigPath));
 const tsConfig = await fs.readJson(tsConfigPath);
 assert.deepEqual(
@@ -33,26 +51,35 @@ assert.deepEqual(
   "Generated tsconfig.json is invalid."
 );
 
-// lists global scripts
-let { stdout } = await $`auto ls`;
-let expected = `
-Info: Using main repository: ~/.config/auto
-- <shell> Shell-like usage (main)
-- <prompts> Auto prompts (main)
-- <fetch> Fetch (main)
-`;
-assert.equal(stdout.trim(), expected.trim(), "Global script listing is invalid.");
-
-// example: shell
-stdout = (await $`auto run shell`).stdout;
-expected = `
-Info: Using main repository: ~/.config/auto
-Info: Running ~/.config/auto/shell.ts
-  "license": "MIT",
-"Hello, root"
-"1"
-"2"
-[ '"1"', '"2"' ]
-0
-`;
-assert.equal(stdout.trim(), expected.trim(), "Example shell script failed.");
+const tests = { ...commandTests, ...exampleTests };
+for (const [name, test] of Object.entries(tests)) {
+  let cwd = process.cwd();
+  console.log(`Testing: ${test.name ?? name}`);
+  if (test.project) {
+    const projectPath = await fs.mkdtemp("/tmp/auto-e2e");
+    console.log(`  - Generated mock project at: ${projectPath}`);
+    cwd = projectPath;
+    for (const [path, content] of Object.entries(test.project)) {
+      await fs.outputFile(resolve(projectPath, path), content);
+    }
+  }
+  if (test.prepare) {
+    await test.prepare(cwd);
+  }
+  const result = await test.run(cwd);
+  if (test.expected.stdout) {
+    if (!result?.stdout) throw new Error(`Test "${test.name ?? name}" doesn't provide stdout.`);
+    assert.equal(result.stdout.trim(), test.expected.stdout.trim(), `Test "${test.name ?? name}" stdout is invalid.`);
+  }
+  if (test.expected.files) {
+    for (const [path, expectedContent] of Object.entries(test.expected.files)) {
+      const filePath = resolve(cwd, path);
+      const actualContent = await fs.readFile(filePath, "utf-8");
+      assert.equal(
+        actualContent.trim(),
+        (typeof expectedContent === "function" ? expectedContent(actualContent).trim() : expectedContent).trim(),
+        `Test "${test.name ?? name}" file ${path} is invalid.`
+      );
+    }
+  }
+}
