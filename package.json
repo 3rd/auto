@@ -37,7 +37,8 @@
     "node": ">= 18.0.0"
   },
   "scripts": {
-    "dev": "pkgroll --watch",
+    "dev": "yarn test:watch",
+    "build:watch": "pkgroll --watch",
     "build": "yarn run clean && pkgroll --target=node16",
     "test": "NODE_OPTIONS='--loader=tsx --no-warnings' ava",
     "test:watch": "NODE_OPTIONS='--loader=tsx --no-warnings' ava --watch",
@@ -73,12 +74,14 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/node": "^20.2.3",
+    "@types/sinon": "^10.0.15",
     "ava": "^5.2.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.2",
     "pkgroll": "^1.9.0",
     "prettier": "^2.8.8",
     "semantic-release": "^21.0.2",
+    "sinon": "^15.1.0",
     "typescript": "^5.0.3"
   },
   "dependencies": {
