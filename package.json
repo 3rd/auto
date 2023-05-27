@@ -52,6 +52,9 @@
       "ts": "module"
     }
   },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
@@ -60,7 +63,9 @@
     "@types/node": "^20.2.3",
     "ava": "^5.2.0",
     "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
     "pkgroll": "^1.9.0",
+    "prettier": "^2.8.8",
     "semantic-release": "^21.0.2",
     "typescript": "^5.0.3"
   },
