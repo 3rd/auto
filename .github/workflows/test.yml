@@ -5,8 +5,11 @@ name: Tests
 on:
   pull_request:
     branches: ["master", "development"]
+  push:
+    branches: ["development"]
 jobs:
   test:
+    name: Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,7 +21,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: npm
       - run: yarn install
       - run: yarn tsc
       - run: yarn test
