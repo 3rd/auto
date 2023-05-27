@@ -6,16 +6,18 @@
 
 **<ins>Auto</ins>** is a **TypeScript-powered command-line automation tool**.
 \
-Write and execute *global* and *project-local* scripts.
+Write and execute _global_ and _project-local_ scripts.
 
 <img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="30%"/>
 
 It's kind of like [zx](https://github.com/google/zx), but:
+
 - <ins>TypeScript-focused</ins>
 - Scripts are organized in <ins>repositories</ins> (no shebangs)
 - With many goodies
 
 Use Auto to:
+
 - Generate files and projects
 - Create interactive scripts
 - Create context-aware automations
@@ -23,6 +25,7 @@ Use Auto to:
 <br/>
 
 ## Features
+
 - **TypeScript-powered**: Write scripts with TypeScript and enjoy full type-checking support.
 - **Global and local scripts**: Share scripts between projects or define project-specific scripts.
 - **Script parameters**: Auto turns script parameters into interactive prompts.
@@ -62,23 +65,26 @@ This is a quick guide of how to setup Auto in your project:
 
 1. Install Auto as a development dependency.
 
-    ```sh
-    npm install -D @andrei.fyi/auto
-    ```
+   ```sh
+   npm install -D @andrei.fyi/auto
+   ```
+
 2. Create an `auto` or `.auto` directory inside the project root.
 3. Run `auto ls` and allow Auto to auto-configure `./auto/tsconfig.json`.
 4. Create a script file `./auto/hello.ts`
-    ```ts
-    import "auto";
 
-    export default auto({
-    id: "hello",
-    title: "Say Hello", 
-    run() {
-        console.log("Hello from an Auto script!");
-    }
-    });
-    ```
+   ```ts
+   import "auto";
+
+   export default auto({
+     id: "hello",
+     title: "Say Hello",
+     run() {
+       console.log("Hello from an Auto script!");
+     },
+   });
+   ```
+
 5. Run `auto ls` inside your project and notice how your script is listed.
 6. Run `auto run hello` to execute the script.
 
@@ -87,13 +93,14 @@ This is a quick guide of how to setup Auto in your project:
 When Auto runs, it first tries to find your scripts.
 
 First it looks for a global script repository, a directory located at:
+
 - `~/.config/auto` on Linux
 - `~/Library/Preferences/auto` on macOS
-- `%APPDATA%\auto\Config` on Windows *(why are you doing this to yourself?)*
+- `%APPDATA%\auto\Config` on Windows _(why are you doing this to yourself?)_
 
 Second, it tries to resolve the root of the project you may be in, based on your `cwd`.
 \
-To do this, it scans up the file tree until it finds a *project marker* pattern, or reaches the root.
+To do this, it scans up the file tree until it finds a _project marker_ pattern, or reaches the root.
 \
 If there's no match, the current directory is considered the project root.
 \
@@ -143,6 +150,7 @@ export default auto({
 ```
 
 To get a better understanding how it all ties together, you can look at the [type of a script](src/types.ts):
+
 ```ts
 export type Script<P extends Record<string, ParamType>> = {
   id: string;
@@ -163,31 +171,32 @@ export type Script<P extends Record<string, ParamType>> = {
 
 ### Contextual variables and helpers
 
-Your script's `run()` function is called with a dictionary that contains the following contextual variables and  helpers:
+Your script's `run()` function is called with a dictionary that contains the following contextual variables and helpers:
+
 - **`cwd: string`** - The directory you called `auto` from.
 - **`fileMap: Proxy<{}>`** - proxied map that resolves the content of files, relative to the script file
-    - For example, if your script is `special.ts`, and there is a directory `interests` next to it, and there's a file named `rule.txt` inside it, you can get its content by accessing `fileMap["interests/rule.txt"]`.
+  - For example, if your script is `special.ts`, and there is a directory `interests` next to it, and there's a file named `rule.txt` inside it, you can get its content by accessing `fileMap["interests/rule.txt"]`.
 - **`files: { path, content }[]`** - the deeply-listed list of files inside the directory the current script is in.
-    - Note: the current script file will not be included in `files`
+  - Note: the current script file will not be included in `files`
 - **`params: Record<key,value>`** - dictionary of your script's param keys and user-provided values.
 - **`project: Project`** - The current `Project`, a small abstraction that provides some helpers:
-    - **`Project.isGoProject`** - `true` in a Go project
-    - **`Project.isTypeScriptProject`** - `true` in a TypeScript project
-    - **`Project.isJavaScriptProject`** - `true` in a JavaScript project
-    - **`Project.isNodeProject`** - `true` in a Node.js project (shallow, checks for `@types/node`)
-    - **`Project.dependencies`** - `{ name, version }[]` of dependencies for Go and JS projects
-    - **`Project.hasDependency(name, version?)`** - checks if the project has a dependency
-    - **`Project.hasAnyDependency(names)`** - checks if the project has any of a list of dependencies (by name)
-    - **`Project.resolvePath(...paths)`** - resolve a path relative to the project root
-    - **`Project.hasPath(...paths)`** - resolve and check if a project-relative path exists
-    - **`Project.hasFile(...paths)`** - resolve and check if a project-relative path is a file
-    - **`Project.readFile(path)`** - read a project-relative file
-    - **`Project.readJSON(path)`** - read a project-relative JSON file
-    - **`Project.writeFile(path, content)`** - write a project-relative file
-    - **`Project.hasDirectory(...paths)`** - resolve and check if a project-relative path is a directory
-    - **`Project.createDirectory(path)`** - create a project-relative directory
+  - **`Project.isGoProject`** - `true` in a Go project
+  - **`Project.isTypeScriptProject`** - `true` in a TypeScript project
+  - **`Project.isJavaScriptProject`** - `true` in a JavaScript project
+  - **`Project.isNodeProject`** - `true` in a Node.js project (shallow, checks for `@types/node`)
+  - **`Project.dependencies`** - `{ name, version }[]` of dependencies for Go and JS projects
+  - **`Project.hasDependency(name, version?)`** - checks if the project has a dependency
+  - **`Project.hasAnyDependency(names)`** - checks if the project has any of a list of dependencies (by name)
+  - **`Project.resolvePath(...paths)`** - resolve a path relative to the project root
+  - **`Project.hasPath(...paths)`** - resolve and check if a project-relative path exists
+  - **`Project.hasFile(...paths)`** - resolve and check if a project-relative path is a file
+  - **`Project.readFile(path)`** - read a project-relative file
+  - **`Project.readJSON(path)`** - read a project-relative JSON file
+  - **`Project.writeFile(path, content)`** - write a project-relative file
+  - **`Project.hasDirectory(...paths)`** - resolve and check if a project-relative path is a directory
+  - **`Project.createDirectory(path)`** - create a project-relative directory
 - **`t(text, data?: { [key]: value })`** - helper string templating function that replaces `__key__` with the provided value
-    - Note: If no data is provided, it uses the `params` dictionary.
+  - Note: If no data is provided, it uses the `params` dictionary.
 - **`self: Script`** - the current script itself, useful for introspection ~~and meditation~~
 
 ### Globals
@@ -195,6 +204,7 @@ Your script's `run()` function is called with a dictionary that contains the fol
 Auto injects many helpers into the [global scope](src/globals/index.ts).
 
 **External helpers:**
+
 - **`$`**, **`$$`**, **`execa`**, **`execaSync`** - process execution utilities provided by [execa](https://github.com/sindresorhus/execa)
 - **`chalk`** - [chalk](https://github.com/chalk/chalk)
 - **`fetch`** - [node-fetch-native](https://github.com/unjs/node-fetch-native)
@@ -205,10 +215,11 @@ Auto injects many helpers into the [global scope](src/globals/index.ts).
 - **`inquirer`** - [@inquirer/prompts](https://github.com/SBoudrias/Inquirer.js/), also aliased to `prompt`
 
 **Internal helpers:**
-- **`sleep(miliseconds: number): Promise<void>`**
+
+- **`sleep(milliseconds: number): Promise<void>`**
 - shell-like helpers: **`cwd()`**, **`cd()`**, **`pwd`**
 
-## Contributing 
+## Contributing
 
 Contributions to the Auto project are welcome!
 \
