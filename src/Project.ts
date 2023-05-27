@@ -100,7 +100,7 @@ class Project {
     if (fs.existsSync(resolvedPath)) {
       throw new Error(`File already exists: ${resolvedPath}`);
     }
-    fs.writeFileSync(resolvedPath, content);
+    fs.outputFileSync(resolvedPath, content);
   }
 
   hasDirectory(path: string) {

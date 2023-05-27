@@ -23,3 +23,5 @@ jobs:
       - run: yarn tsc
       - run: yarn test
       - run: yarn build
+      - run: docker run --rm $(docker build -f src/e2e/Dockerfile -q .)
+        timeout-minutes: 10
