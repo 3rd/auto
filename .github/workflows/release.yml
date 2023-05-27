@@ -5,7 +5,7 @@ name: Release (semantic-release)
 
 on:
   push:
-    branches: ["master", "beta"]
+    branches: ["master"]
 
 permissions:
   contents: read

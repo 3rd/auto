@@ -4,9 +4,9 @@
 name: Tests
 on:
   pull_request:
-    branches: ["master"]
+    branches: ["master", "development"]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
