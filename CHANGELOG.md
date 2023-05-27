@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/3rd/auto/compare/v1.1.1...v1.1.2) (2023-05-27)
+
+
+### Bug Fixes
+
+* use fs.outputFile for project.writeFile ([4279f9d](https://github.com/3rd/auto/commit/4279f9d32920510d7f062a487eac7324251c02d4))
+
 ## [1.1.1](https://github.com/3rd/auto/compare/v1.1.0...v1.1.1) (2023-05-25)
 
 
