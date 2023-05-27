@@ -7,18 +7,20 @@ import { setupTSConfig } from "../setup";
 import { getGlobalRepositoryPath } from "../utils/path";
 import commandTests from "./commands";
 import * as exampleTests from "./examples";
+import { generateMockProject } from "./utils";
 
 export type Test = {
   name?: string;
   run: (cwd: string) => Promise<{
     stdout?: string;
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   } | void>;
   project?: {
     [path: string]: string;
   };
   prepare?: (cwd: string) => Promise<void>; // cwd is the mocked project cwd if present, or the current pwd
   expected: {
-    stdout?: string;
+    stdout?: string | ((args: { cwd?: string }) => string);
     files?: Record<string, string | ((v: string) => string)>;
   };
 };
@@ -56,12 +58,9 @@ for (const [name, test] of Object.entries(tests)) {
   let cwd = process.cwd();
   console.log(`Testing: ${test.name ?? name}`);
   if (test.project) {
-    const projectPath = await fs.mkdtemp("/tmp/auto-e2e");
-    console.log(`  - Generated mock project at: ${projectPath}`);
+    const projectPath = await generateMockProject(test.project);
     cwd = projectPath;
-    for (const [path, content] of Object.entries(test.project)) {
-      await fs.outputFile(resolve(projectPath, path), content);
-    }
+    console.log(`  - Generated mock project at: ${projectPath}`);
   }
   if (test.prepare) {
     await test.prepare(cwd);
@@ -69,7 +68,9 @@ for (const [name, test] of Object.entries(tests)) {
   const result = await test.run(cwd);
   if (test.expected.stdout) {
     if (!result?.stdout) throw new Error(`Test "${test.name ?? name}" doesn't provide stdout.`);
-    assert.equal(result.stdout.trim(), test.expected.stdout.trim(), `Test "${test.name ?? name}" stdout is invalid.`);
+    const expectedStdout =
+      typeof test.expected.stdout === "function" ? test.expected.stdout({ cwd }) : test.expected.stdout;
+    assert.equal(result.stdout.trim(), expectedStdout.trim(), `Test "${test.name ?? name}" stdout is invalid.`);
   }
   if (test.expected.files) {
     for (const [path, expectedContent] of Object.entries(test.expected.files)) {
