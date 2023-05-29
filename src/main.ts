@@ -11,7 +11,7 @@ import * as inquirer from "@inquirer/prompts";
 
 import packageJson from "../package.json";
 import Project from "./Project";
-import { getGlobalRepositoryPath, tildify } from "./utils/path";
+import { getGlobalRepositoryPath, resolveProjectRoot, tildify } from "./utils/path";
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
@@ -34,7 +34,8 @@ const main = async () => {
   }
 
   // local repo
-  const localRepositoryPaths = ["./auto", "./.auto"].map((p) => resolve(process.cwd(), p));
+  const projectRoot = resolveProjectRoot(process.cwd());
+  const localRepositoryPaths = ["./auto", "./.auto"].map((p) => resolve(projectRoot, p));
   const localRepositoryPath = localRepositoryPaths.find((p) => fs.existsSync(p));
   if (localRepositoryPath && isParentProcess) {
     console.log(chalk.blue("Info:"), "Using local repository:", chalk.magenta(tildify(localRepositoryPath)));
@@ -49,7 +50,11 @@ const main = async () => {
   if (repositoryPaths.length === 0) {
     console.error(chalk.red("Error:"), "Cannot resolve repository directory, to fix this either:");
     console.log(`- Create a directory at: ${chalk.magenta(tildify(configRepositoryPath))}`);
-    console.log(`- Create a directory at: ${chalk.magenta("./auto")} or ${chalk.magenta("./.auto")}`);
+    console.log(
+      `- Create a directory at:\n  ${chalk.magenta(resolve(projectRoot, "auto"))}\nor\n  ${chalk.magenta(
+        resolve(projectRoot, ".auto")
+      )}`
+    );
     console.log(`- Or set the ${chalk.cyan("$AUTO_REPO")} environment variable.`);
 
     // auto-create main repo (~/.config/auto)
@@ -158,7 +163,7 @@ const main = async () => {
     }
   }
 
-  const project = Project.resolveFromDirectory(process.cwd());
+  const project = Project.resolveFromPath(process.cwd());
   const scripts = Object.values(scriptMap);
 
   const cli = cleye({

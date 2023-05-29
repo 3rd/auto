@@ -9,16 +9,16 @@ import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
 
 export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
-  command({ name: "run", alias: "r", parameters: ["<generator id>"] }, async (argv) => {
-    const { generatorId } = argv._;
-    const script = scripts.find((t) => t.id === generatorId);
+  command({ name: "run", alias: "r", parameters: ["<script id>"] }, async (argv) => {
+    const { scriptId } = argv._;
+    const script = scripts.find((t) => t.id === scriptId);
 
     if (!script) {
-      console.error(chalk.red(`Error: script "%s" not found.`), generatorId);
+      console.error(chalk.red(`Error: script "%s" not found.`), scriptId);
       process.exit(1);
     }
     if (script.isValid && !script.isValid(project)) {
-      console.error(chalk.red(`Error: script "%s" is not valid for this context.`), generatorId);
+      console.error(chalk.red(`Error: script "%s" is not valid for this context.`), scriptId);
       process.exit(1);
     }
 
@@ -100,7 +100,7 @@ export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       cwd: process.cwd(),
       files,
       params: paramValues as Parameters<typeof script.run>[0]["params"],
-      project: Project.resolveFromDirectory(process.cwd()),
+      project: Project.resolveFromPath(process.cwd()),
       self: script,
       get fileMap() {
         return new Proxy(

@@ -1,19 +1,12 @@
 import fs from "fs-extra";
 import { resolve } from "node:path";
-import { findUpSync } from "find-up";
 import chalk from "chalk";
+import { resolveProjectRoot } from "./utils/path";
 
 type Dependency = {
   name: string;
   version?: string;
 };
-
-const rootMatchingConfigurations = [
-  { match: "package.json", type: "file" },
-  { match: "go.mod", type: "file" },
-  { match: "Makefile", type: "file" },
-  { match: ".git", type: "directory" },
-] as const;
 
 class Project {
   rootDirectory: string;
@@ -22,16 +15,8 @@ class Project {
     this.rootDirectory = rootDirectory;
   }
 
-  static resolveFromDirectory(directory: string = process.cwd()) {
-    let rootDirectory = directory;
-    for (const { match, type } of rootMatchingConfigurations) {
-      const foundPath = findUpSync(match, { cwd: rootDirectory, type });
-      if (foundPath) {
-        rootDirectory = resolve(foundPath, "..");
-        break;
-      }
-    }
-    return new Project(rootDirectory);
+  static resolveFromPath(path: string = process.cwd()) {
+    return new Project(resolveProjectRoot(path));
   }
 
   get isGoProject() {

@@ -11,14 +11,14 @@ test("detects Go project", async (t) => {
   const hasFile = stub(Project.prototype, "hasFile");
   hasFile.returns(false);
   hasFile.withArgs("go.mod").returns(true);
-  t.true(Project.resolveFromDirectory().isGoProject);
+  t.true(Project.resolveFromPath().isGoProject);
 });
 
 test("detects JavaScript project", async (t) => {
   const hasFile = stub(Project.prototype, "hasFile");
   hasFile.returns(false);
   hasFile.withArgs("package.json").returns(true);
-  t.true(Project.resolveFromDirectory().isJavaScriptProject);
+  t.true(Project.resolveFromPath().isJavaScriptProject);
 });
 
 test("detects TypeScript project", async (t) => {
@@ -26,8 +26,8 @@ test("detects TypeScript project", async (t) => {
   hasFile.returns(false);
   hasFile.withArgs("package.json").returns(true);
   hasFile.withArgs("tsconfig.json").returns(true);
-  t.true(Project.resolveFromDirectory().isJavaScriptProject);
-  t.true(Project.resolveFromDirectory().isTypeScriptProject);
+  t.true(Project.resolveFromPath().isJavaScriptProject);
+  t.true(Project.resolveFromPath().isTypeScriptProject);
 });
 
 test("detects Node project", async (t) => {
@@ -38,15 +38,15 @@ test("detects Node project", async (t) => {
 
   // not a Node project
   readJSON.returns({});
-  t.false(Project.resolveFromDirectory().isNodeProject);
+  t.false(Project.resolveFromPath().isNodeProject);
 
   // Node project with engines.node
   readJSON.returns({ engines: { node: "x" } });
-  t.true(Project.resolveFromDirectory().isNodeProject);
+  t.true(Project.resolveFromPath().isNodeProject);
 
   // Node project with @types/node
   readJSON.returns({ dependencies: { "@types/node": "x" } });
-  t.true(Project.resolveFromDirectory().isNodeProject);
+  t.true(Project.resolveFromPath().isNodeProject);
 });
 
 test("gets JavaScript dependencies", async (t) => {
@@ -59,7 +59,7 @@ test("gets JavaScript dependencies", async (t) => {
     devDependencies: { bar: "2.0.0" },
     peerDependencies: { baz: "3.0.0" },
   });
-  t.deepEqual(Project.resolveFromDirectory().dependencies, [
+  t.deepEqual(Project.resolveFromPath().dependencies, [
     { name: "foo", version: "1.0.0" },
     { name: "bar", version: "2.0.0" },
     { name: "baz", version: "3.0.0" },
@@ -79,7 +79,7 @@ test("gets Go dependencies", async (t) => {
       github.com/baz/qux v2.0.0
     )
   `);
-  t.deepEqual(Project.resolveFromDirectory().dependencies, [
+  t.deepEqual(Project.resolveFromPath().dependencies, [
     { name: "github.com/foo/bar", version: "v1.0.0" },
     { name: "github.com/baz/qux", version: "v2.0.0" },
   ]);
@@ -105,7 +105,7 @@ test("gets multi-source dependencies", async (t) => {
       github.com/baz/qux v2.0.0
     )
   `);
-  t.deepEqual(Project.resolveFromDirectory().dependencies, [
+  t.deepEqual(Project.resolveFromPath().dependencies, [
     { name: "foo", version: "1.0.0" },
     { name: "bar", version: "2.0.0" },
     { name: "baz", version: "3.0.0" },
@@ -124,10 +124,10 @@ test("checks if dependency exists", async (t) => {
     devDependencies: { bar: "2.0.0" },
     peerDependencies: { baz: "3.0.0" },
   });
-  t.true(Project.resolveFromDirectory().hasDependency("foo"));
-  t.true(Project.resolveFromDirectory().hasDependency("bar"));
-  t.true(Project.resolveFromDirectory().hasDependency("baz"));
-  t.false(Project.resolveFromDirectory().hasDependency("brr"));
+  t.true(Project.resolveFromPath().hasDependency("foo"));
+  t.true(Project.resolveFromPath().hasDependency("bar"));
+  t.true(Project.resolveFromPath().hasDependency("baz"));
+  t.false(Project.resolveFromPath().hasDependency("brr"));
 });
 
 test("checks if any of dependency[] exists", async (t) => {
@@ -138,6 +138,6 @@ test("checks if any of dependency[] exists", async (t) => {
   readJSON.returns({
     dependencies: { foo: "1.0.0" },
   });
-  t.true(Project.resolveFromDirectory().hasAnyDependency(["foo", "bar", "baz"]));
-  t.false(Project.resolveFromDirectory().hasAnyDependency(["moo", "bar", "baz"]));
+  t.true(Project.resolveFromPath().hasAnyDependency(["foo", "bar", "baz"]));
+  t.false(Project.resolveFromPath().hasAnyDependency(["moo", "bar", "baz"]));
 });
