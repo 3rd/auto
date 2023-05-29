@@ -39,7 +39,7 @@
   "scripts": {
     "dev": "yarn test:watch",
     "build:watch": "pkgroll --watch",
-    "build": "yarn run clean && pkgroll --target=node16",
+    "build": "yarn run clean && pkgroll --target=node18",
     "test": "NODE_OPTIONS='--loader=tsx --no-warnings' ava",
     "test:watch": "NODE_OPTIONS='--loader=tsx --no-warnings' ava --watch",
     "e2e": "docker run --rm -it $(docker build -f src/e2e/Dockerfile -q .)",
