@@ -8,13 +8,13 @@
 \
 Write and execute _global_ and _project-local_ scripts.
 
-<img src="https://github.com/3rd/auto/assets/59587503/cd5ee073-6a6c-4551-ba1f-70e1683549d9" align="right" width="30%"/>
-
 It's kind of like [zx](https://github.com/google/zx), but:
 
 - <ins>TypeScript-focused</ins>
 - Scripts are organized in <ins>repositories</ins> (no shebangs)
 - With many goodies
+
+![auto](https://github.com/3rd/auto/assets/59587503/5bc46d72-9372-4a2f-b286-2716e9062c3f)
 
 Use Auto to:
 
