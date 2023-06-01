@@ -207,7 +207,6 @@ Auto injects many helpers into the [global scope](src/globals/index.ts).
 
 - **`$`**, **`$$`**, **`execa`**, **`execaSync`** - process execution utilities provided by [execa](https://github.com/sindresorhus/execa)
 - **`chalk`** - [chalk](https://github.com/chalk/chalk)
-- **`fetch`** - [node-fetch-native](https://github.com/unjs/node-fetch-native)
 - **`fs`** - [fs-extra](https://github.com/jprichardson/node-fs-extra)
 - **`glob`** - [glob](https://github.com/isaacs/node-glob)
 - **`lodash`** - [lodash](https://github.com/lodash/lodash)

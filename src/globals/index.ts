@@ -9,7 +9,6 @@ import * as _inquirer from "@inquirer/prompts";
 import _fs from "fs-extra";
 import _lodash from "lodash";
 import _which from "which";
-import _fetch from "node-fetch-native";
 
 import * as types from "../types";
 import _sleep from "./sleep";
@@ -33,7 +32,6 @@ Object.assign(global, {
   glob: _glob,
   lodash: _lodash,
   which: _which,
-  fetch: _fetch,
 });
 
 // accessors
@@ -63,5 +61,4 @@ declare global {
   const fs: typeof _fs_t;
   const lodash: typeof _lodash_t;
   const which: typeof _which_t;
-  const fetch: typeof _fetch;
 }
