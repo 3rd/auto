@@ -22,6 +22,10 @@ Use Auto to:
 - Create interactive scripts
 - Create context-aware automations
 
+External resources:
+
+- [Generating React Components with Auto - andrei.fyi](https://andrei.fyi/blog/auto-generating-react-components)
+
 <br/>
 
 ## Features
