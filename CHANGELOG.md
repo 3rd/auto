@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/3rd/auto/compare/v1.2.0...v1.3.0) (2023-06-03)
+
+### Features
+
+- remove node-fetch-native in favor of Node 18's builtin fetch ([523153c](https://github.com/3rd/auto/commit/523153cb584101749f6595f72e9d71604b74c4b4))
+
 # [1.2.0](https://github.com/3rd/auto/compare/v1.1.2...v1.2.0) (2023-05-29)
 
 ### Features
