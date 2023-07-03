@@ -16,17 +16,25 @@ export default auto({
         if (project.hasDirectory("src/components")) {
           return `src/components/${params.name}`;
         }
+        if (project.hasDirectory("components")) {
+          return `components/${params.name}`;
+        }
       },
     },
   },
   isValid: (project) => project.hasDependency("react"),
-  run: async ({ project, params, files, self, t }) => {
+  run: async ({ project, params, fileMap, self, t }) => {
     console.log("Running:", self.id);
 
     project.createDirectory(params.path);
 
-    for (const file of files) {
-      project.writeFile(t(`${params.path}/${file.path}`), t(file.content));
+    project.writeFile(t(`${params.path}/index.ts`), t(fileMap["index.ts"]));
+    project.writeFile(t(`${params.path}/${params.name}.tsx`), t(fileMap["__name__.tsx"]));
+    if (project.hasDependency("jest")) {
+      project.writeFile(t(`${params.path}/${params.name}.test.tsx`), t(fileMap["__name__.test.tsx"]));
+    }
+    if (project.hasDependency("storybook")) {
+      project.writeFile(t(`${params.path}/${params.name}.stories.tsx`), t(fileMap["__name__.stories.tsx"]));
     }
   },
 });

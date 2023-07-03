@@ -18,7 +18,7 @@ export const generateReactComponent: Test = {
   project: {
     "package.json": JSON.stringify({
       name: "app",
-      dependencies: { react: "*" },
+      dependencies: { react: "*", jest: "*", storybook: "*" },
     }),
   },
   run: (cwd) => {
