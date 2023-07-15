@@ -4,11 +4,11 @@ import repl from "node:repl";
 import { command } from "cleye";
 import chalk from "chalk";
 import envPaths from "env-paths";
-import Project from "../Project";
+import { Project } from "../Project";
 import { AutoReturnType } from "../types";
 import packageJson from "../../package.json";
 
-export const createReplCommand = (project: Project, scripts: AutoReturnType[]) =>
+const createReplCommand = (project: Project, scripts: AutoReturnType[]) =>
   command({ name: "repl" }, async () => {
     (global as any).project = project;
     (global as any).scripts = scripts;
@@ -20,3 +20,5 @@ export const createReplCommand = (project: Project, scripts: AutoReturnType[]) =
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     r.setupHistory(resolve(envPaths(packageJson.name, { suffix: "" }).cache, "history"), () => {});
   });
+
+export { createReplCommand };

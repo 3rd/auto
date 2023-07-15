@@ -1,7 +1,7 @@
 import { execa } from "execa";
 import type { Test } from "../index";
 
-export const list: Test = {
+const list: Test = {
   name: "list.global",
   run: async (cwd) => {
     const { stdout } = await execa("auto", ["ls"], { cwd });
@@ -18,7 +18,7 @@ Info: Using main repository: ~/.config/auto
   },
 };
 
-export const listLocal: Test = {
+const listLocal: Test = {
   name: "list.local",
   project: {
     "package.json": "{}",
@@ -48,3 +48,5 @@ Info: Using local repository: ${cwd}/auto
 `,
   },
 };
+
+export { list, listLocal };

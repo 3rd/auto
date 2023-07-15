@@ -10,7 +10,7 @@ import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
 
 import packageJson from "../package.json";
-import Project from "./Project";
+import { Project } from "./Project";
 import { getGlobalRepositoryPath, resolveProjectRoot, tildify } from "./utils/path";
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
@@ -65,9 +65,7 @@ const main = async () => {
       await fs.mkdirp(configRepositoryPath);
       console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(tildify(configRepositoryPath)));
       mainRepositoryPath = configRepositoryPath;
-    } else {
-      process.exit(1);
-    }
+    } else process.exit(1);
   }
 
   if (isParentProcess) {

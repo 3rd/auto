@@ -1,7 +1,7 @@
 import { execa } from "execa";
 import type { Test } from "../index";
 
-export const shell: Test = {
+const shell: Test = {
   run: async (cwd) => {
     const { stdout } = await execa("auto", ["run", "shell"], { cwd });
 
@@ -19,3 +19,5 @@ Info: Running ~/.config/auto/shell.ts
 0`,
   },
 };
+
+export { shell };

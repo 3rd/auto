@@ -31,7 +31,7 @@ export const Default = Template.bind({});
 Default.args = {};`.trim(),
 };
 
-export const generateReactComponentInline: Test = {
+const generateReactComponentInline: Test = {
   project: {
     "package.json": JSON.stringify({
       name: "app",
@@ -73,3 +73,5 @@ describe("__name__", () => {
     },
   },
 };
+
+export { generateReactComponentInline };

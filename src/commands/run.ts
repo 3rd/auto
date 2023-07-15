@@ -1,14 +1,14 @@
 /* eslint-disable no-await-in-loop */
 import { command } from "cleye";
 import chalk from "chalk";
-import Project from "../Project";
+import { Project } from "../Project";
 import { AutoReturnType } from "../types";
 import { tildify } from "../utils/path";
 import { dirname, resolve } from "node:path";
 import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
 
-export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
+const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
   command({ name: "run", alias: "r", parameters: ["<script id>"] }, async (argv) => {
     const { scriptId } = argv._;
     const script = scripts.find((t) => t.id === scriptId);
@@ -81,6 +81,7 @@ export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       for (const [key, value] of Object.entries(params)) {
         result = result.replace(new RegExp(`__${key}__`, "g"), String(value));
       }
+
       return result;
     };
 
@@ -117,3 +118,5 @@ export const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       t,
     });
   });
+
+export { createRunCommand };

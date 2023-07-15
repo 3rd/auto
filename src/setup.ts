@@ -2,7 +2,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "fs-extra";
 
-export const setupTSConfig = (tsConfigPath: string) => {
+const setupTSConfig = (tsConfigPath: string) => {
   const pathToDistGlobals = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist", "globals");
   return fs.writeFile(
     tsConfigPath,
@@ -24,3 +24,5 @@ export const setupTSConfig = (tsConfigPath: string) => {
     )
   );
 };
+
+export { setupTSConfig };

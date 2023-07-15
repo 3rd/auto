@@ -2,7 +2,7 @@ import * as http from "http";
 import { execa } from "execa";
 import type { Test } from "../index";
 
-export const fetch: Test = {
+const fetch: Test = {
   run: async (cwd) => {
     const server = http.createServer((_, res) => {
       res.writeHead(200, { "Content-Type": "text/plain" });
@@ -23,3 +23,5 @@ Info: Running ~/.config/auto/fetch.ts
 Hello`,
   },
 };
+
+export { fetch };

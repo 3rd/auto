@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import { stub } from "./utils/test";
-import Project from "./Project";
+import { Project } from "./Project";
 
 test.beforeEach(() => {
   sinon.restore();

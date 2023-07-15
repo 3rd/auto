@@ -5,19 +5,17 @@ import fs from "fs-extra";
 import assert from "node:assert";
 import { setupTSConfig } from "../setup";
 import { getGlobalRepositoryPath } from "../utils/path";
-import commandTests from "./commands";
+import { commands as commandTests } from "./commands";
 import * as exampleTests from "./examples";
 import { generateMockProject } from "./utils";
 
-export type Test = {
+type Test = {
   name?: string;
   run: (cwd: string) => Promise<{
     stdout?: string;
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   } | void>;
-  project?: {
-    [path: string]: string;
-  };
+  project?: Record<string, string>;
   prepare?: (cwd: string) => Promise<void>; // cwd is the mocked project cwd if present, or the current pwd
   expected: {
     stdout?: string | ((args: { cwd?: string }) => string);
@@ -75,7 +73,7 @@ for (const [name, test] of Object.entries(tests)) {
   if (test.expected.files) {
     for (const [path, expectedContent] of Object.entries(test.expected.files)) {
       const filePath = resolve(cwd, path);
-      const actualContent = await fs.readFile(filePath, "utf-8");
+      const actualContent = await fs.readFile(filePath, "utf8");
       assert.equal(
         actualContent.trim(),
         (typeof expectedContent === "function" ? expectedContent(actualContent).trim() : expectedContent).trim(),
@@ -84,3 +82,5 @@ for (const [name, test] of Object.entries(tests)) {
     }
   }
 }
+
+export type { Test };

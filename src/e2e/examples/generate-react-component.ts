@@ -14,7 +14,7 @@ const files = Object.entries({
   return acc;
 }, {});
 
-export const generateReactComponent: Test = {
+const generateReactComponent: Test = {
   project: {
     "package.json": JSON.stringify({
       name: "app",
@@ -46,3 +46,5 @@ export const generateReactComponent: Test = {
     },
   },
 };
+
+export { generateReactComponent };

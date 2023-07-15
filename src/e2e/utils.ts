@@ -2,11 +2,7 @@ import fs from "fs-extra";
 import { resolve as resolvePath } from "path";
 import { execa } from "execa";
 
-export const runCommandWithInputs = (
-  command: string,
-  inputs: { on: string; value: string }[],
-  opts?: { cwd: string }
-) => {
+const runCommandWithInputs = (command: string, inputs: { on: string; value: string }[], opts?: { cwd: string }) => {
   const [cmd, ...args] = command.split(" ");
   return new Promise<{ stdout: string }>((resolve, reject) => {
     const proc = execa(cmd, args, { ...opts, stdin: "pipe" });
@@ -17,12 +13,11 @@ export const runCommandWithInputs = (
     let currentInputIndex = 0;
 
     const loop = () => {
-      if (currentInputIndex === inputs.length) {
-        proc.stdin!.end();
-      } else if (stdoutChunk.includes(inputs[currentInputIndex].on)) {
+      if (currentInputIndex === inputs.length) proc.stdin!.end();
+      else if (stdoutChunk.includes(inputs[currentInputIndex].on)) {
         console.log(" - Simulating input:", inputs[currentInputIndex].value);
         stdoutChunk = "";
-        proc.stdin!.write(inputs[currentInputIndex].value + "\n");
+        proc.stdin!.write(`${inputs[currentInputIndex].value}\n`);
         currentInputIndex++;
       }
     };
@@ -42,16 +37,17 @@ export const runCommandWithInputs = (
   });
 };
 
-export const lazyRead = (filePath: string, modifier?: (value: string) => string) => () => {
+const lazyRead = (filePath: string, modifier?: (value: string) => string) => () => {
   const value = fs.readFileSync(filePath, "utf8").trim();
   return modifier ? modifier(value) : value;
 };
 
-export const generateMockProject = async (files: Record<string, string>) => {
+const generateMockProject = async (files: Record<string, string>) => {
   const projectPath = await fs.mkdtemp("/tmp/auto-e2e");
-  for (const [path, content] of Object.entries(files)) {
-    // eslint-disable-next-line no-await-in-loop
-    await fs.outputFile(resolvePath(projectPath, path), content);
-  }
+  // eslint-disable-next-line no-await-in-loop
+  for (const [path, content] of Object.entries(files)) await fs.outputFile(resolvePath(projectPath, path), content);
+
   return projectPath;
 };
+
+export { generateMockProject, lazyRead, runCommandWithInputs };

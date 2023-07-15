@@ -1,9 +1,9 @@
 import { command } from "cleye";
 import chalk from "chalk";
-import Project from "../Project";
+import { Project } from "../Project";
 import { AutoReturnType } from "../types";
 
-export const createListCommand = (project: Project, scripts: AutoReturnType[]) =>
+const createListCommand = (project: Project, scripts: AutoReturnType[]) =>
   command({ name: "list", alias: "ls", flags: { all: Boolean } }, (argv) => {
     const filteredScripts = argv.flags.all ? scripts : scripts.filter((t) => !t.isValid || t.isValid(project));
     for (const script of filteredScripts) {
@@ -15,3 +15,5 @@ export const createListCommand = (project: Project, scripts: AutoReturnType[]) =
       );
     }
   });
+
+export { createListCommand };

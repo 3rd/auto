@@ -10,13 +10,13 @@ const rootMatchingConfigurations = [
   { match: ".git", type: "directory" },
 ] as const;
 
-export const tildify = (path: string) => path.replace(os.homedir(), "~");
+const tildify = (path: string) => path.replace(os.homedir(), "~");
 
-export const getGlobalRepositoryPath = () => {
+const getGlobalRepositoryPath = () => {
   return envPaths("auto", { suffix: "" }).config;
 };
 
-export const resolveProjectRoot = (cwd: string) => {
+const resolveProjectRoot = (cwd: string) => {
   let root = cwd;
   for (const { match, type } of rootMatchingConfigurations) {
     const foundPath = findUpSync(match, { cwd: root, type });
@@ -27,3 +27,5 @@ export const resolveProjectRoot = (cwd: string) => {
   }
   return root;
 };
+
+export { getGlobalRepositoryPath, resolveProjectRoot, tildify };

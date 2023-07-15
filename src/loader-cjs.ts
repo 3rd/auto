@@ -18,8 +18,7 @@ const autoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "globals
 
 const resolveFilename = Module._resolveFilename;
 Module._resolveFilename = function (request, parent, isMain, options) {
-  if (request === "auto") {
-    return autoLoaderPath;
-  }
+  if (request === "auto") return autoLoaderPath;
+
   return resolveFilename.call(this, request, parent, isMain, options);
 };

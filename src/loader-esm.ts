@@ -4,14 +4,14 @@ import fs from "fs";
 
 const autoLoaderPath = nodeResolve(dirname(fileURLToPath(import.meta.url)), "globals/index.mjs");
 
-export async function resolve(specifier: string, context: unknown, next: Function) {
+async function resolve(specifier: string, context: unknown, next: Function) {
   if (specifier === "auto") {
     return { url: `file://${autoLoaderPath}`, shortCircuit: true };
   }
   return next(specifier, context);
 }
 
-export async function load(url: string, context: unknown, next: Function) {
+async function load(url: string, context: unknown, next: Function) {
   if (url === autoLoaderPath) {
     const code = fs.readFileSync(autoLoaderPath, "utf8");
     return {
@@ -21,3 +21,5 @@ export async function load(url: string, context: unknown, next: Function) {
   }
   return next(url, context);
 }
+
+export { load, resolve };

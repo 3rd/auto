@@ -1,5 +1,7 @@
 import * as listCommands from "./list";
 
-export default {
+const commands = {
   ...listCommands,
 };
+
+export { commands };

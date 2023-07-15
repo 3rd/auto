@@ -1,8 +1,8 @@
-import Project from "./Project";
+import { Project } from "./Project";
 
-export type ParamType = "boolean" | "number" | "string";
+type ParamType = "boolean" | "number" | "string";
 
-export type ParamValueType<T extends ParamType> = T extends "boolean"
+type ParamValueType<T extends ParamType> = T extends "boolean"
   ? boolean
   : T extends "number"
   ? number
@@ -10,7 +10,7 @@ export type ParamValueType<T extends ParamType> = T extends "boolean"
   ? string
   : never;
 
-export type ScriptParam<T extends ParamType, P extends Record<string, ParamType>> = {
+type ScriptParam<T extends ParamType, P extends Record<string, ParamType>> = {
   title: string;
   type: T;
   defaultValue?:
@@ -19,11 +19,11 @@ export type ScriptParam<T extends ParamType, P extends Record<string, ParamType>
   required?: boolean;
 };
 
-export type Params<T extends Record<string, ParamType> = Record<string, ParamType>> = {
+type Params<T extends Record<string, ParamType> = Record<string, ParamType>> = {
   [K in keyof T]: ScriptParam<T[K], T> & { type: T[K] };
 };
 
-export type Script<P extends Record<string, ParamType>> = {
+type Script<P extends Record<string, ParamType>> = {
   id: string;
   title?: string;
   params?: Params<P>;
@@ -48,9 +48,9 @@ const getDefaultParamValue = <T extends ParamType>(type: T) => {
   return defaultValues[type] as ParamValueType<T>;
 };
 
-export const autoSymbol = Symbol.for("auto");
+const autoSymbol = Symbol.for("auto");
 
-export const auto = <P extends Record<string, ParamType>>(script: Script<P>) => {
+const auto = <P extends Record<string, ParamType>>(script: Script<P>) => {
   return {
     [autoSymbol]: true,
     ...script,
@@ -61,9 +61,8 @@ export const auto = <P extends Record<string, ParamType>>(script: Script<P>) => 
       return Object.fromEntries(
         Object.entries(script.params).map(([key, param]) => {
           let value = getDefaultParamValue(param.type);
-          if (typeof param.defaultValue !== "function" && param.defaultValue !== undefined) {
-            value = param.defaultValue;
-          }
+          if (typeof param.defaultValue !== "function" && param.defaultValue !== undefined) value = param.defaultValue;
+
           return [key, { ...param, value }];
         }) as [keyof P, ScriptParam<P[keyof P], P> & { value: ParamValueType<P[keyof P]> }][]
       );
@@ -71,5 +70,8 @@ export const auto = <P extends Record<string, ParamType>>(script: Script<P>) => 
   };
 };
 
-export type AutoType = typeof auto;
-export type AutoReturnType = ReturnType<AutoType>;
+type AutoType = typeof auto;
+type AutoReturnType = ReturnType<AutoType>;
+
+export type { AutoReturnType, AutoType, Params, ParamType, ParamValueType, Script, ScriptParam };
+export { auto, autoSymbol };

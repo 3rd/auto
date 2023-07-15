@@ -85,6 +85,7 @@ class Project {
     if (fs.existsSync(resolvedPath)) {
       throw new Error(`File already exists: ${resolvedPath}`);
     }
+
     fs.outputFileSync(resolvedPath, content);
   }
 
@@ -95,9 +96,8 @@ class Project {
   createDirectory(path: string) {
     const resolvedPath = this.resolvePath(path);
     console.log(chalk.blue("Creating directory:"), resolvedPath);
-    if (fs.existsSync(resolvedPath)) {
-      throw new Error(`Directory already exists: ${resolvedPath}`);
-    }
+    if (fs.existsSync(resolvedPath)) throw new Error(`Directory already exists: ${resolvedPath}`);
+
     fs.mkdirSync(resolvedPath, { recursive: true });
   }
 
@@ -118,4 +118,4 @@ class Project {
   }
 }
 
-export default Project;
+export { Project };
