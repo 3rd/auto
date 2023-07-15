@@ -19,9 +19,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-      - run: yarn install
-      - run: yarn tsc
-      - run: yarn test
-      - run: yarn build
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: true
+      - run: pnpm install
+      - run: pnpm tsc
+      - run: pnpm test
+      - run: pnpm build
       - run: docker run --rm $(docker build -f src/e2e/Dockerfile -q .)
         timeout-minutes: 10
