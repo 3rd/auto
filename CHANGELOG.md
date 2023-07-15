@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/3rd/auto/compare/v1.3.0...v1.3.1) (2023-07-15)
+
+### Bug Fixes
+
+- switch to pnpm and upgrade deps ([60897c8](https://github.com/3rd/auto/commit/60897c8e74e5691c9ef58e0f29a57d6ad322dab2))
+
 # [1.3.0](https://github.com/3rd/auto/compare/v1.2.0...v1.3.0) (2023-06-03)
 
 ### Features
