@@ -18,13 +18,18 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: true
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - run: yarn install
-      - run: yarn tsc
-      - run: yarn test
-      - run: yarn build
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm tsc
+      - run: pnpm test
+      - run: pnpm build
       - run: docker run --rm $(docker build -f src/e2e/Dockerfile -q .)
         timeout-minutes: 10
       - env:
