@@ -1,3 +1,14 @@
+# [1.4.0](https://github.com/3rd/auto/compare/v1.3.1...v1.4.0) (2023-11-01)
+
+### Bug Fixes
+
+- update & fix tests failing due to missing pnpm ([b13dd1f](https://github.com/3rd/auto/commit/b13dd1fa4ddea0657c4b0cab480f1ab024c7f0e2))
+
+### Features
+
+- add override flag to project.writeFile() ([2a3373a](https://github.com/3rd/auto/commit/2a3373af34759e042d98b161637647278838d311))
+- setup package.json for repos to ensure { type: "module" } ([c046d55](https://github.com/3rd/auto/commit/c046d55d1e9e0e36b0ccceb159ac8ba8f796442b))
+
 ## [1.3.1](https://github.com/3rd/auto/compare/v1.3.0...v1.3.1) (2023-07-15)
 
 ### Bug Fixes
