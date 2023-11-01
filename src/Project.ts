@@ -79,10 +79,10 @@ class Project {
     return fs.readFileSync(this.resolvePath(...path), "utf8");
   }
 
-  writeFile(path: string, content: string) {
+  writeFile(path: string, content: string, overwrite = false) {
     const resolvedPath = this.resolvePath(path);
     console.log(chalk.blue("Writing file:"), resolvedPath);
-    if (fs.existsSync(resolvedPath)) {
+    if (!overwrite && fs.existsSync(resolvedPath)) {
       throw new Error(`File already exists: ${resolvedPath}`);
     }
 
