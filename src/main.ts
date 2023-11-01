@@ -99,6 +99,32 @@ const main = async () => {
       }
     }
 
+    // auto-setup repo/package.json with { "type": "module" }
+    for (const repoPath of repositoryPaths) {
+      const repoPackageJsonPath = resolve(repoPath, "package.json");
+
+      if (!fs.existsSync(repoPackageJsonPath)) {
+        console.log(
+          chalk.yellow.bold("Warning:"),
+          "Cannot find",
+          // eslint-disable-next-line sonarjs/no-nested-template-literals
+          `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("package.json")}`
+        );
+
+        const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
+        if (ok) {
+          await fs.writeJSON(repoPackageJsonPath, { type: "module" }, { spaces: 2 });
+          console.log(
+            chalk.green("Success:"),
+            "Wrote",
+            chalk.cyan("package.json"),
+            "to",
+            chalk.magenta(tildify(repoPackageJsonPath))
+          );
+        }
+      }
+    }
+
     const childProcess = spawn(
       process.execPath,
       ["-r", cjsAutoLoaderPath, "--loader", esmLoaderPath, "--loader", esmAutoLoaderPath, ...argv],
