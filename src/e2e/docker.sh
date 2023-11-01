@@ -2,9 +2,11 @@
 set -uf -o pipefail
 IFS=$'\n\t'
 
+npm install -g pnpm
+
 cd /root/source || exit
-HUSKY=0 yarn --immutable
-yarn build
+HUSKY=0 pnpm i --frozen-lockfile --force
+pnpm run build
 
 mkdir /root/build
 npm pack --pack-destination /root/build

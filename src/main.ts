@@ -16,7 +16,7 @@ import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
 import { autoSymbol, AutoReturnType } from "./types";
-import { setupTSConfig } from "./setup";
+import { setupPackage, setupTSConfig } from "./setup";
 
 const main = async () => {
   const isParentProcess = typeof process.send !== "function";
@@ -113,7 +113,7 @@ const main = async () => {
 
         const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
         if (ok) {
-          await fs.writeJSON(repoPackageJsonPath, { type: "module" }, { spaces: 2 });
+          await setupPackage(repoPackageJsonPath);
           console.log(
             chalk.green("Success:"),
             "Wrote",

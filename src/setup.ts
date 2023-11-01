@@ -25,4 +25,8 @@ const setupTSConfig = (tsConfigPath: string) => {
   );
 };
 
-export { setupTSConfig };
+const setupPackage = (packagePath: string) => {
+  return fs.writeFile(packagePath, JSON.stringify({ type: "module" }, null, 2));
+};
+
+export { setupPackage, setupTSConfig };

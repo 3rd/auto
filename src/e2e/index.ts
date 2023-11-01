@@ -3,7 +3,7 @@
 import { resolve } from "node:path";
 import fs from "fs-extra";
 import assert from "node:assert";
-import { setupTSConfig } from "../setup";
+import { setupPackage, setupTSConfig } from "../setup";
 import { getGlobalRepositoryPath } from "../utils/path";
 import { commands as commandTests } from "./commands";
 import * as exampleTests from "./examples";
@@ -30,6 +30,7 @@ await fs.mkdirp(globalRepositoryPath);
 await fs.copy("./examples", globalRepositoryPath);
 const tsConfigPath = resolve(globalRepositoryPath, "tsconfig.json");
 await setupTSConfig(tsConfigPath);
+await setupPackage(resolve(globalRepositoryPath, "package.json"));
 
 // generate tsconfig
 assert(await fs.exists(tsConfigPath));
