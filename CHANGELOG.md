@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/3rd/auto/compare/v1.4.0...v1.4.1) (2024-1-18)
+
+### Bug Fixes
+
+- node 20 tsx loader crash ([7d7a3f3](https://github.com/3rd/auto/commit/7d7a3f356db5e09c04c1df7bb932c985f00e5c0b))
+- upgrade ci node to 21 ([4257b0d](https://github.com/3rd/auto/commit/4257b0d74632d82f37dc3ac0d11e39de89fd364c))
+
 # [1.4.0](https://github.com/3rd/auto/compare/v1.3.1...v1.4.0) (2023-11-01)
 
 ### Bug Fixes
