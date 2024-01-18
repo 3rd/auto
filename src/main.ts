@@ -127,7 +127,7 @@ const main = async () => {
 
     const childProcess = spawn(
       process.execPath,
-      ["-r", cjsAutoLoaderPath, "--loader", esmLoaderPath, "--loader", esmAutoLoaderPath, ...argv],
+      ["-r", cjsAutoLoaderPath, "--import", esmLoaderPath, `--loader`, `${esmAutoLoaderPath}`, ...argv],
       {
         stdio: ["inherit", "inherit", "inherit", "ipc"],
         env: {
