@@ -40,8 +40,8 @@
     "dev": "pnpm test:watch",
     "build:watch": "pkgroll --watch",
     "build": "pnpm run clean && pkgroll --target=node18",
-    "test": "NODE_OPTIONS='--import tsx --no-warnings' ava",
-    "test:watch": "NODE_OPTIONS='--import tsx --no-warnings' ava --watch",
+    "test": "NODE_OPTIONS='--import=tsx --no-warnings' ava",
+    "test:watch": "NODE_OPTIONS='--import=tsx --no-warnings' ava --watch",
     "e2e": "docker run --rm -it $(docker build -f src/e2e/Dockerfile -q .)",
     "tsc": "tsc",
     "prepare": "husky install",
@@ -50,7 +50,7 @@
   },
   "ava": {
     "extensions": {
-      "ts": "module"
+      "ts": "commonjs"
     }
   },
   "lint-staged": {
