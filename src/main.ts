@@ -15,7 +15,7 @@ import { getGlobalRepositoryPath, resolveProjectRoot, tildify } from "./utils/pa
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
-import { autoSymbol, AutoReturnType } from "./types";
+import { AutoReturnType, autoSymbol } from "./types";
 import { setupPackage, setupTSConfig } from "./setup";
 
 const main = async () => {
@@ -23,11 +23,12 @@ const main = async () => {
 
   // main repo
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "examples");
-  const configRepositoryPath = getGlobalRepositoryPath();
+  const globalRepositoryPath = getGlobalRepositoryPath();
   const envRepositoryPath = process.env.AUTO_REPO;
-  let mainRepositoryPath = fs.existsSync(developmentRepositoryPath)
-    ? developmentRepositoryPath
-    : envRepositoryPath ?? configRepositoryPath;
+  let mainRepositoryPath =
+    envRepositoryPath ??
+    globalRepositoryPath ??
+    (fs.existsSync(developmentRepositoryPath) ? developmentRepositoryPath : null);
   const hasMainRepository = fs.existsSync(mainRepositoryPath);
   if (hasMainRepository && isParentProcess) {
     console.log(chalk.blue("Info:"), "Using main repository:", chalk.magenta(tildify(mainRepositoryPath)));
@@ -49,7 +50,7 @@ const main = async () => {
   // no repo found
   if (repositoryPaths.length === 0) {
     console.error(chalk.red("Error:"), "Cannot resolve repository directory, to fix this either:");
-    console.log(`- Create a directory at: ${chalk.magenta(tildify(configRepositoryPath))}`);
+    console.log(`- Create a directory at: ${chalk.magenta(tildify(globalRepositoryPath))}`);
     console.log(
       `- Create a directory at:\n  ${chalk.magenta(resolve(projectRoot, "auto"))}\nor\n  ${chalk.magenta(
         resolve(projectRoot, ".auto")
@@ -59,12 +60,12 @@ const main = async () => {
 
     // auto-create main repo (~/.config/auto)
     const ok = await inquirer.confirm({
-      message: `Do you want me to create a directory at ${chalk.magenta(tildify(configRepositoryPath))}?`,
+      message: `Do you want me to create a directory at ${chalk.magenta(tildify(globalRepositoryPath))}?`,
     });
     if (ok) {
-      await fs.mkdirp(configRepositoryPath);
-      console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(tildify(configRepositoryPath)));
-      mainRepositoryPath = configRepositoryPath;
+      await fs.mkdirp(globalRepositoryPath);
+      console.log(chalk.green("Success:"), "Created directory at", chalk.magenta(tildify(globalRepositoryPath)));
+      mainRepositoryPath = globalRepositoryPath;
     } else process.exit(1);
   }
 
