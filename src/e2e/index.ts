@@ -72,6 +72,8 @@ for (const [name, test] of Object.entries(tests)) {
     assert.equal(result.stdout.trim(), expectedStdout.trim(), `Test "${test.name ?? name}" stdout is invalid.`);
   }
   if (test.expected.files) {
+    const existingFiles = await fs.readdir(cwd);
+    console.log("Files in cwd:", existingFiles);
     for (const [path, expectedContent] of Object.entries(test.expected.files)) {
       const filePath = resolve(cwd, path);
       const actualContent = await fs.readFile(filePath, "utf8");

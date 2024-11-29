@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
 import { cli as cleye } from "cleye";
 import chalk from "chalk";
 import fs from "fs-extra";
@@ -10,34 +9,50 @@ import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
 
 import packageJson from "../package.json";
-import { Project } from "./Project";
 import { getGlobalRepositoryPath, resolveProjectRoot, tildify } from "./utils/path";
+import * as log from "./utils/logger";
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
 import { AutoReturnType, autoSymbol } from "./types";
 import { setupPackage, setupTSConfig } from "./setup";
+import { Project } from "./Project";
 
 const main = async () => {
+  log.debug("Starting auto...");
   const isParentProcess = typeof process.send !== "function";
+  log.debug("Is parent process:", isParentProcess);
 
   // main repo
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "examples");
   const globalRepositoryPath = getGlobalRepositoryPath();
   const envRepositoryPath = process.env.AUTO_REPO;
+  log.debug("Repository paths:", {
+    development: developmentRepositoryPath,
+    global: globalRepositoryPath,
+    env: envRepositoryPath,
+  });
+
   let mainRepositoryPath =
     envRepositoryPath ??
     globalRepositoryPath ??
     (fs.existsSync(developmentRepositoryPath) ? developmentRepositoryPath : null);
   const hasMainRepository = fs.existsSync(mainRepositoryPath);
+  log.debug("Selected main repository:", mainRepositoryPath);
+  log.debug("Main repository exists:", hasMainRepository);
+
   if (hasMainRepository && isParentProcess) {
     console.log(chalk.blue("Info:"), "Using main repository:", chalk.magenta(tildify(mainRepositoryPath)));
   }
 
   // local repo
   const projectRoot = resolveProjectRoot(process.cwd());
+  log.debug("Project root:", projectRoot);
   const localRepositoryPaths = ["./auto", "./.auto"].map((p) => resolve(projectRoot, p));
+  log.debug("Checking local repository paths:", localRepositoryPaths);
   const localRepositoryPath = localRepositoryPaths.find((p) => fs.existsSync(p));
+  log.debug("Local repository:", localRepositoryPath);
+
   if (localRepositoryPath && isParentProcess) {
     console.log(chalk.blue("Info:"), "Using local repository:", chalk.magenta(tildify(localRepositoryPath)));
   }
@@ -46,10 +61,12 @@ const main = async () => {
   const repositoryPaths: string[] = [];
   if (hasMainRepository) repositoryPaths.push(mainRepositoryPath);
   if (localRepositoryPath) repositoryPaths.push(localRepositoryPath);
+  log.debug("Final repository paths:", repositoryPaths);
 
   // no repo found
   if (repositoryPaths.length === 0) {
-    console.error(chalk.red("Error:"), "Cannot resolve repository directory, to fix this either:");
+    log.debug("No repositories found");
+    log.error("Cannot resolve repository directory, to fix this either:");
     console.log(`- Create a directory at: ${chalk.magenta(tildify(globalRepositoryPath))}`);
     console.log(
       `- Create a directory at:\n  ${chalk.magenta(resolve(projectRoot, "auto"))}\nor\n  ${chalk.magenta(
@@ -182,11 +199,13 @@ const main = async () => {
       }
 
       scriptMap[script.id] = script;
-      // console.log(chalk.green("Success:"), "Loaded:", chalk.magenta(path));
+      log.debug("Loaded:", path);
     } else {
-      // console.log(chalk.yellow("Skipped:"), "Not a module:", chalk.magenta(file.path));
+      log.debug("Skipped:", "Not a module:", file.path);
     }
   }
+
+  log.debug("Loaded scripts:", Object.keys(scriptMap));
 
   const project = Project.resolveFromPath(process.cwd());
   const scripts = Object.values(scriptMap);
