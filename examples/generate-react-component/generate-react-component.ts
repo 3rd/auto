@@ -4,20 +4,15 @@ export default auto({
   id: "react-component",
   title: "React Component",
   params: {
-    name: {
-      title: "Component Name",
-      type: "string",
-      required: true,
-    },
     path: {
       title: "Component Path",
       type: "string",
-      defaultValue: ({ project, params }) => {
+      defaultValue: ({ project }) => {
         if (project.hasDirectory("src/components")) {
-          return `src/components/${params.name}`;
+          return `src/components/`;
         }
         if (project.hasDirectory("components")) {
-          return `components/${params.name}`;
+          return `components/`;
         }
       },
     },
@@ -26,15 +21,21 @@ export default auto({
   run: async ({ project, params, fileMap, self, t }) => {
     console.log("Running:", self.id);
 
+    const parts = params.path.split("/");
+    const name = parts.pop();
+    if (!name) throw new Error(`Invalid name: ${name}`);
+
     project.createDirectory(params.path);
 
-    project.writeFile(t(`${params.path}/index.ts`), t(fileMap["index.ts"]));
-    project.writeFile(t(`${params.path}/${params.name}.tsx`), t(fileMap["__name__.tsx"]));
-    if (project.hasDependency("jest")) {
-      project.writeFile(t(`${params.path}/${params.name}.test.tsx`), t(fileMap["__name__.test.tsx"]));
+    const template: typeof t = (text: string) => t(text, { ...params, name });
+
+    project.writeFile(template(`${params.path}/index.ts`), template(fileMap["index.ts"]));
+    project.writeFile(template(`${params.path}/${name}.tsx`), template(fileMap["__name__.tsx"]));
+    if (project.hasDependency("jest") || project.hasDependency("@testing-library/react")) {
+      project.writeFile(template(`${params.path}/${name}.test.tsx`), template(fileMap["__name__.test.tsx"]));
     }
     if (project.hasDependency("storybook")) {
-      project.writeFile(t(`${params.path}/${params.name}.stories.tsx`), t(fileMap["__name__.stories.tsx"]));
+      project.writeFile(template(`${params.path}/${name}.stories.tsx`), template(fileMap["__name__.stories.tsx"]));
     }
   },
 });
