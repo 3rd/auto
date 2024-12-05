@@ -1,3 +1,13 @@
+# [1.5.0](https://github.com/3rd/auto/compare/v1.4.1...v1.5.0) (2024-12-05)
+
+### Bug Fixes
+
+- prioritize global repo over dev depo ([b25d8a9](https://github.com/3rd/auto/commit/b25d8a9a2db5cc840a4b70d78b240fd04cd3d9b8))
+
+### Features
+
+- add support for passing params directly ([b9a7d77](https://github.com/3rd/auto/commit/b9a7d7707378ba289fbebee657b7ac435a26ad6d))
+
 ## [1.4.1](https://github.com/3rd/auto/compare/v1.4.0...v1.4.1) (2024-1-18)
 
 ### Bug Fixes
