@@ -1,17 +1,15 @@
-/* This file should be auto-generated, don't copy-paste this. */
 {
   "compilerOptions": {
     "strict": true,
-    "lib": [],
+    "target": "es2022",
+    "lib": ["es2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "typeRoots": [
-      "/home/user/.npm/.../globals" /* auto-generated */
-    ],
+    "types": ["node"],
     "paths": {
-      "auto": [
-      "/home/user/.npm/.../globals" /* auto-generated */
-      ]
+      "auto": ["../dist/globals/index.d.ts"]
     }
-  }
+  },
+  "exclude": ["generate-react-component"]
 }

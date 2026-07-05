@@ -1,41 +1,63 @@
 /* eslint-disable no-await-in-loop */
 import * as fs from "node:fs";
-import { command } from "cleye";
+import cli from "gunsmith";
 import chalk from "chalk";
 import { globSync } from "glob";
 import * as inquirer from "@inquirer/prompts";
+import { z } from "zod";
 import { Project } from "../Project";
-import { AutoReturnType } from "../types";
+import { GetCommandContext } from "../types";
 import { tildify } from "../utils/path";
 import { dirname, resolve } from "node:path";
 import * as log from "../utils/logger";
+
+type FlagValue = boolean | string;
+type FlagMap = Record<string, FlagValue[]>;
 
 const toKebabCase = (str: string) => {
   return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 };
 
-const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
-  command(
-    {
-      name: "run",
-      alias: "r",
-      parameters: ["<script id>"],
-      flags: {
-        help: { type: Boolean, alias: "h" },
-      },
-      allowUnknownFlags: true,
-    },
-    async (argv) => {
-      const { scriptId } = argv._;
+const parseFlagTokens = (tokens: string[]) => {
+  const flags: FlagMap = {};
+
+  for (let index = 0; index < tokens.length; index++) {
+    const token = tokens[index];
+    if (!token.startsWith("--") || token === "--") continue;
+
+    const [name, inlineValue] = token.slice(2).split(/=(.*)/s, 2);
+    if (!name) continue;
+
+    const nextToken = tokens[index + 1];
+    const hasNextValue = inlineValue === undefined && nextToken !== undefined && !nextToken.startsWith("--");
+    const value = inlineValue ?? (hasNextValue ? nextToken : true);
+    flags[name] = [...(flags[name] ?? []), value];
+    if (hasNextValue) index++;
+  }
+
+  return flags;
+};
+
+const createRunCommand = (getContext: GetCommandContext) =>
+  cli.command("run", {
+    alias: "r",
+    args: z.object({
+      scriptId: z.string().describe("script id"),
+    }),
+    run: async ({ args, rest }) => {
+      const { project, scripts } = await getContext();
+      const { scriptId } = args;
       const script = scripts.find((t) => t.id === scriptId);
 
       if (!script) {
         console.error(chalk.red(`Error: script "%s" not found.`), scriptId);
-        process.exit(1);
+        process.exitCode = 1;
+        return;
       }
       if (script.isValid && !script.isValid(project)) {
         console.error(chalk.red(`Error: script "%s" is not valid for this context.`), scriptId);
-        process.exit(1);
+        process.exitCode = 1;
+        return;
       }
 
       console.log(chalk.blue("Info:"), "Running", chalk.magenta(tildify(script.path)));
@@ -44,11 +66,12 @@ const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       const scriptParams = script.bootstrapParams();
 
       // get CLI-passed params
-      const cliParams: Record<string, any> = {};
+      const cliFlags = parseFlagTokens(rest);
+      const cliParams: Record<string, FlagValue> = {};
 
       for (const [key, param] of Object.entries(scriptParams)) {
         // cli values
-        const cliValue = (argv.unknownFlags[key] ?? argv.unknownFlags[toKebabCase(key)] ?? [])[0];
+        const cliValue = (cliFlags[key] ?? cliFlags[toKebabCase(key)] ?? [])[0];
         if (cliValue !== undefined) {
           switch (param.type) {
             case "boolean":
@@ -58,7 +81,7 @@ const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
               param.value = Number(cliValue);
               break;
             case "string":
-              param.value = cliValue;
+              param.value = String(cliValue);
               break;
           }
           cliParams[key] = cliValue;
@@ -104,7 +127,8 @@ const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
               });
               if (param.required && param.value === "") {
                 console.error(chalk.red(`Error: Parameter "%s" is required.`), param.title);
-                process.exit(1);
+                process.exitCode = 1;
+                return;
               }
               break;
             }
@@ -139,7 +163,7 @@ const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
       });
 
       // run the script
-      script.run({
+      await script.run({
         cwd: process.cwd(),
         files,
         params: paramValues as Parameters<typeof script.run>[0]["params"],
@@ -159,7 +183,7 @@ const createRunCommand = (project: Project, scripts: AutoReturnType[]) =>
         },
         t,
       });
-    }
-  );
+    },
+  });
 
 export { createRunCommand };

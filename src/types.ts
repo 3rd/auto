@@ -37,8 +37,15 @@ type Script<P extends Record<string, ParamType>> = {
     files: { path: string; content: string }[];
     fileMap: Record<string, string>;
     t: (text: string, params?: Record<string, boolean | number | string>) => string;
-  }) => void;
+  }) => void | Promise<void>;
 };
+
+type CommandContext = {
+  project: Project;
+  scripts: AutoReturnType[];
+};
+
+type GetCommandContext = () => Promise<CommandContext>;
 
 const getDefaultParamValue = <T extends ParamType>(type: T) => {
   debug("Getting default value for param type:", type);
@@ -90,5 +97,15 @@ const auto = <P extends Record<string, ParamType>>(script: Script<P>) => {
 type AutoType = typeof auto;
 type AutoReturnType = ReturnType<AutoType>;
 
-export type { AutoReturnType, AutoType, Params, ParamType, ParamValueType, Script, ScriptParam };
+export type {
+  AutoReturnType,
+  AutoType,
+  CommandContext,
+  GetCommandContext,
+  Params,
+  ParamType,
+  ParamValueType,
+  Script,
+  ScriptParam,
+};
 export { auto, autoSymbol };

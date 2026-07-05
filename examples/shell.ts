@@ -1,5 +1,4 @@
 import "auto";
-import { ExecaChildProcess } from "execa";
 
 export default auto({
   id: "shell",
@@ -7,10 +6,10 @@ export default auto({
   run: async ({ project }) => {
     cd(project.rootDirectory);
 
-    console.log((await execa("cat", ["package.json"]).pipeStdout?.(execa("grep", ["license"])))?.stdout);
+    console.log((await execa("cat", ["package.json"]).pipe("grep", ["license"])).stdout);
 
     const whoami = await $`whoami`;
-    await $`echo "Hello, ${whoami}"`.pipeStdout?.(process.stdout);
+    await $({ stdout: ["pipe", "inherit"] })`echo "Hello, ${whoami}"`;
 
     console.log(
       (
@@ -18,11 +17,11 @@ export default auto({
           [
             async () => {
               await sleep(100);
-              return $`echo "1"`.pipeStdout?.(process.stdout);
+              return $({ stdout: ["pipe", "inherit"] })`echo "1"`;
             },
             async () => {
               await sleep(200);
-              return $`echo "2"`.pipeStdout?.(process.stdout);
+              return $({ stdout: ["pipe", "inherit"] })`echo "2"`;
             },
           ].map((f) => f())
         )

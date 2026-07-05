@@ -16,6 +16,10 @@ const getGlobalRepositoryPath = () => {
   return envPaths("auto", { suffix: "" }).config;
 };
 
+const getGlobalCachePath = () => {
+  return envPaths("auto", { suffix: "" }).cache;
+};
+
 const resolveProjectRoot = (cwd: string) => {
   let root = cwd;
   for (const { match, type } of rootMatchingConfigurations) {
@@ -28,4 +32,4 @@ const resolveProjectRoot = (cwd: string) => {
   return root;
 };
 
-export { getGlobalRepositoryPath, resolveProjectRoot, tildify };
+export { getGlobalCachePath, getGlobalRepositoryPath, resolveProjectRoot, tildify };

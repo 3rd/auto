@@ -1,7 +1,8 @@
 /* eslint-disable no-await-in-loop */
+import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { cli as cleye } from "cleye";
+import cli from "gunsmith";
 import chalk from "chalk";
 import fs from "fs-extra";
 import spawn from "cross-spawn";
@@ -14,15 +15,24 @@ import * as log from "./utils/logger";
 import { createListCommand } from "./commands/list";
 import { createRunCommand } from "./commands/run";
 import { createReplCommand } from "./commands/repl";
-import { AutoReturnType, autoSymbol } from "./types";
+import { AutoReturnType, autoSymbol, CommandContext } from "./types";
 import { setupPackage, setupTSConfig } from "./setup";
 import { Project } from "./Project";
 
-const main = async () => {
-  log.debug("Starting auto...");
-  const isParentProcess = typeof process.send !== "function";
-  log.debug("Is parent process:", isParentProcess);
+const RUN_COMMAND_NAMES = new Set(["run", "r"]);
 
+const prepareCliArgv = (argv: string[]) => {
+  const [command, scriptId, ...rest] = argv;
+  if (!command || !RUN_COMMAND_NAMES.has(command)) return argv;
+  if (!scriptId || scriptId.startsWith("--") || rest.includes("--")) return argv;
+
+  const firstFlagIndex = rest.findIndex((token) => token.startsWith("--"));
+  if (firstFlagIndex === -1) return argv;
+
+  return [command, scriptId, ...rest.slice(0, firstFlagIndex), "--", ...rest.slice(firstFlagIndex)];
+};
+
+const resolveRepositoryPaths = async (isParentProcess: boolean) => {
   // main repo
   const developmentRepositoryPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "examples");
   const globalRepositoryPath = getGlobalRepositoryPath();
@@ -86,78 +96,84 @@ const main = async () => {
     } else process.exit(1);
   }
 
-  if (isParentProcess) {
-    const argv = process.argv.slice(1);
-    const esmLoaderPath = require.resolve("tsx");
-    const cjsAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-cjs.cjs");
-    const esmAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-esm.mjs");
+  return { repositoryPaths, localRepositoryPath };
+};
 
-    // auto-setup repo/tsconfig.json
-    for (const repoPath of repositoryPaths) {
-      const tsConfigPath = resolve(repoPath, "tsconfig.json");
-      if (!fs.existsSync(tsConfigPath)) {
+const spawnChildAndExit = async (repositoryPaths: string[]): Promise<never> => {
+  const argv = process.argv.slice(1);
+  const esmLoaderPath = createRequire(import.meta.url).resolve("tsx");
+  const cjsAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-cjs.cjs");
+  const esmAutoLoaderPath = resolve(dirname(fileURLToPath(import.meta.url)), "loader-esm.mjs");
+
+  // auto-setup repo/tsconfig.json
+  for (const repoPath of repositoryPaths) {
+    const tsConfigPath = resolve(repoPath, "tsconfig.json");
+    if (!fs.existsSync(tsConfigPath)) {
+      console.log(
+        chalk.yellow.bold("Warning:"),
+        "Cannot find",
+        // eslint-disable-next-line sonarjs/no-nested-template-literals
+        `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("tsconfig.json")}`
+      );
+
+      const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
+      if (ok) {
+        await setupTSConfig(tsConfigPath);
         console.log(
-          chalk.yellow.bold("Warning:"),
-          "Cannot find",
-          // eslint-disable-next-line sonarjs/no-nested-template-literals
-          `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("tsconfig.json")}`
+          chalk.green("Success:"),
+          "Wrote",
+          chalk.cyan("tsconfig.json"),
+          "to",
+          chalk.magenta(tildify(tsConfigPath))
         );
-
-        const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
-        if (ok) {
-          await setupTSConfig(tsConfigPath);
-          console.log(
-            chalk.green("Success:"),
-            "Wrote",
-            chalk.cyan("tsconfig.json"),
-            "to",
-            chalk.magenta(tildify(tsConfigPath))
-          );
-        }
       }
     }
-
-    // auto-setup repo/package.json with { "type": "module" }
-    for (const repoPath of repositoryPaths) {
-      const repoPackageJsonPath = resolve(repoPath, "package.json");
-
-      if (!fs.existsSync(repoPackageJsonPath)) {
-        console.log(
-          chalk.yellow.bold("Warning:"),
-          "Cannot find",
-          // eslint-disable-next-line sonarjs/no-nested-template-literals
-          `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("package.json")}`
-        );
-
-        const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
-        if (ok) {
-          await setupPackage(repoPackageJsonPath);
-          console.log(
-            chalk.green("Success:"),
-            "Wrote",
-            chalk.cyan("package.json"),
-            "to",
-            chalk.magenta(tildify(repoPackageJsonPath))
-          );
-        }
-      }
-    }
-
-    const childProcess = spawn(
-      process.execPath,
-      ["-r", cjsAutoLoaderPath, "--import", esmLoaderPath, `--loader`, `${esmAutoLoaderPath}`, ...argv],
-      {
-        stdio: ["inherit", "inherit", "inherit", "ipc"],
-        env: {
-          ...process.env,
-          NODE_OPTIONS: ["--experimental-specifier-resolution=node", "--no-warnings=ExperimentalWarning"].join(" "),
-        },
-      }
-    );
-    childProcess.on("close", (code) => process.exit(code!));
-    return;
   }
 
+  // auto-setup repo/package.json with { "type": "module" }
+  for (const repoPath of repositoryPaths) {
+    const repoPackageJsonPath = resolve(repoPath, "package.json");
+
+    if (!fs.existsSync(repoPackageJsonPath)) {
+      console.log(
+        chalk.yellow.bold("Warning:"),
+        "Cannot find",
+        // eslint-disable-next-line sonarjs/no-nested-template-literals
+        `${chalk.magenta(`${tildify(repoPath)}/`)}${chalk.cyan("package.json")}`
+      );
+
+      const ok = await inquirer.confirm({ message: "Do you want me to set it up?" });
+      if (ok) {
+        await setupPackage(repoPackageJsonPath);
+        console.log(
+          chalk.green("Success:"),
+          "Wrote",
+          chalk.cyan("package.json"),
+          "to",
+          chalk.magenta(tildify(repoPackageJsonPath))
+        );
+      }
+    }
+  }
+
+  const childProcess = spawn(
+    process.execPath,
+    ["-r", cjsAutoLoaderPath, "--import", esmLoaderPath, `--loader`, `${esmAutoLoaderPath}`, ...argv],
+    {
+      stdio: ["inherit", "inherit", "inherit", "ipc"],
+      env: {
+        ...process.env,
+        NODE_OPTIONS: ["--experimental-specifier-resolution=node", "--no-warnings=ExperimentalWarning"].join(" "),
+      },
+    }
+  );
+  childProcess.on("close", (code) => {
+    process.exitCode = code ?? 0;
+  });
+  return new Promise<never>(() => {});
+};
+
+const loadScripts = async (repositoryPaths: string[], localRepositoryPath: string | undefined) => {
   const scriptMap: Record<string, AutoReturnType> = {};
 
   const files = repositoryPaths.flatMap((repositoryPath) =>
@@ -207,19 +223,36 @@ const main = async () => {
 
   log.debug("Loaded scripts:", Object.keys(scriptMap));
 
-  const project = Project.resolveFromPath(process.cwd());
-  const scripts = Object.values(scriptMap);
+  return Object.values(scriptMap);
+};
 
-  const cli = cleye({
-    name: "auto",
+const main = async () => {
+  log.debug("Starting auto...");
+  const isParentProcess = typeof process.send !== "function";
+  log.debug("Is parent process:", isParentProcess);
+
+  const getContext = async (): Promise<CommandContext> => {
+    const { repositoryPaths, localRepositoryPath } = await resolveRepositoryPaths(isParentProcess);
+    if (isParentProcess) return spawnChildAndExit(repositoryPaths);
+    const scripts = await loadScripts(repositoryPaths, localRepositoryPath);
+    const project = Project.resolveFromPath(process.cwd());
+    return { project, scripts };
+  };
+
+  const app = cli.create("auto", {
     version: packageJson.version,
-    commands: [
-      createListCommand(project, scripts),
-      createRunCommand(project, scripts),
-      createReplCommand(project, scripts),
-    ],
+    features: {
+      llms: false,
+      mcp: false,
+      schema: false,
+      json: false,
+    },
   });
-  if (!cli.command) cli.showHelp();
+  app.command(createListCommand(getContext));
+  app.command(createRunCommand(getContext));
+  app.command(createReplCommand(getContext));
+  process.exitCode = await app.serve(prepareCliArgv(process.argv.slice(2)));
+  if (process.connected) process.disconnect();
 };
 
 main();

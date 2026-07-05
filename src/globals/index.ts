@@ -21,7 +21,7 @@ Object.assign(global, {
   ...shell,
   sleep: _sleep,
   // external utils
-  $$: _execa.$({ verbose: true }),
+  $$: _execa.$({ verbose: "short" }),
   $: _execa.$,
   chalk: _chalk,
   prompt: _inquirer,
